@@ -1,0 +1,45 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>LDAS - James Taylor</title>
+        <meta name="description" content="Circuit Logic Designer and Simulator for A-Level programming project.">
+        <meta name="author" content="James Taylor">
+        <link rel="shortcut icon" type="image/png" href="FAVICON.png"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+    </head>
+    <body>
+        <h1 class="title">Logic Designer</h1>
+        <h1 class="title" style="top: 45px;">and Simulation</h1>
+        <h4 class="subtitle">By James Taylor <span style="color: #DDD; font-size: 15px;">V1.0.2</span></h4>
+        <p class="FPSLabel" id="FPSLabel">80 FPS</p><input type="range" min="1" max="200" value="80" class="slider" id="FPSSlider">
+        <p class="GridLabel">Snap to grid</p>
+        <button class="saveFile" href="" onclick="saveCircuit()">Save circuit to file</button>
+        <input type="file" class="loadFile loadFileInput" name="myfile" oninput="fileUploaded()" id="fileInput">
+        <button class="loadFile" href="">Load cicuit from file</button>
+        <label class="switch">
+            <input type="checkbox" id="gridSnap" onchange="checkchange()">
+            <span class="sliderIcon round"></span>
+        </label>
+        <div class="main">
+            <canvas id="MainCanvas" width="799" height="445"></canvas>
+            <div class="toolbox">
+                <button style="background-image: url(UIParts/ANDGATE.png);" onclick="createGate('andGate')"></button>
+                <button style="background-image: url(UIParts/ORGATE.png);" onclick="createGate('orGate')"></button>
+                <button style="background-image: url(UIParts/NOTGATE.png);" onclick="createGate('notGate')"></button>
+                <button style="background-image: url(UIParts/NANDGATE.png);" onclick="createGate('nandGate')"></button>
+                <button style="background-image: url(UIParts/NORGATE.png);" onclick="createGate('norGate')"></button>
+                <button style="background-image: url(UIParts/XORGATE.png);" onclick="createGate('xorGate')"></button>
+                <button style="background-image: url(UIParts/OFFSWITCH.png);" onclick="createGate('toggleSwitch')"></button>
+                <button style="background-image: url(UIParts/OFFBUTTON.png);" onclick="createGate('tempButton')"></button>
+                <button style="background-image: url(UIParts/OFFLIGHT.png);" onclick="createGate('light')"></button>
+                <button style="background-image: url(UIParts/UNDO.png);" onclick="undoCreation()"></button>
+                <button style="background-image: url(UIParts/WIRE.png);" onclick="wirePress()" class="" id="wireButton"></button>
+                <button style="background-image: url(UIParts/TRASH.png);" onclick="resetBoard()"></button>
+            </div>
+        </div>
+        <script src="main.js" type="text/javascript"></script>
+    </body>
+</html>
