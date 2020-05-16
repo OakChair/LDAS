@@ -644,25 +644,29 @@ function dumpAll() {
 
 function loadAll(loadString) {
     resetBoard();
-    var jsonObject = JSON.parse(atob(loadString));
-    var getGates = jsonObject[0];
-    var getConnections = jsonObject[1];
-    
-    for (var i = 0; i < getGates.length; ++i) {
-        var gateData = getGates[i];
-        // Switch out the invalid accessors with valid ones
-        if (gateData.type == "switch") {
-            gateData.type = "toggleSwitch";
-        } else if (gateData.type == "button") {
-            gateData.type = "tempButton";
+    try {
+        var jsonObject = JSON.parse(atob(loadString));
+        var getGates = jsonObject[0];
+        var getConnections = jsonObject[1];
+        
+        for (var i = 0; i < getGates.length; ++i) {
+            var gateData = getGates[i];
+            // Switch out the invalid accessors with valid ones
+            if (gateData.type == "switch") {
+                gateData.type = "toggleSwitch";
+            } else if (gateData.type == "button") {
+                gateData.type = "tempButton";
+            }
+            var newGate = createGate(gateData.type, {x: gateData.x, y: gateData.y});
         }
-        var newGate = createGate(gateData.type, {x: gateData.x, y: gateData.y});
-    }
-    
-    for (var i = 0; i < getConnections.length; ++i) {
-        var conn = getConnections[i];
-        var newConnection = new connection(gates[conn.fromNode].outputs[conn.fromNodeChild], gates[conn.toNode].inputs[conn.toNodeChild]);
-        connections.push(newConnection);
+        
+        for (var i = 0; i < getConnections.length; ++i) {
+            var conn = getConnections[i];
+            var newConnection = new connection(gates[conn.fromNode].outputs[conn.fromNodeChild], gates[conn.toNode].inputs[conn.toNodeChild]);
+            connections.push(newConnection);
+        }
+    } catch (error) {
+        console.error("Invalid LDAS file");
     }
 }
 
