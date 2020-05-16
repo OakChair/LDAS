@@ -629,7 +629,7 @@ function dumpAll() {
     var connectionList = [];
     for (var i = 0; i < gates.length; ++i) {
         var gateGet = gates[i];
-        gateList.push({type: gateGet.type, x: gateGet.position.x, y: gateGet.position.y}) // Add a gate with a given serial derrived from its index
+        gateList.push({type: gateGet.type, x: gateGet.position.x, y: gateGet.position.y}) // Add a gate with nececarry data
         for (var x = 0; x < gateGet.inputs.length; ++x) {
             // Iterate the gates inputs
             var getInp = gateGet.inputs[x];
