@@ -17,6 +17,7 @@
 var c = document.getElementById("MainCanvas");
 var ctx = c.getContext("2d");
 ctx.lineWidth = 3;
+ctx.font = "38px Tahoma";
 var cLeft = c.offsetLeft + c.clientLeft; // Set the canvas offsets
 var cTop = c.offsetTop + c.clientTop;
 var gridWidth = 6;
@@ -34,8 +35,9 @@ var offset = 20;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
 var interval = 50; // Set FPS timer
-var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png"]
+var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png"]
 var gateImages = {};
+var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 
 // Mouse stuff
 var lastKnownMousePos = {x: 0, y: 0}; // Track the mouse
@@ -49,7 +51,7 @@ var mouseWithoutMove = true; // Tracks wether the user has moved their mouse sin
 var simulationPaused = false; // General circuit pause
 var gates = [];
 var connections = [];
-var creationHistory = [];
+var actionHistory = [];
 
 for (var i = 0; i < gateImagesFN.length; ++i) {
     // Loads all of the file names into actual images for rendering
@@ -159,7 +161,7 @@ c.onmousedown = function(evt) {
                         newConnection = new connection(onNode, wireSelection);
                     }
                     connections.push(newConnection);
-                    creationHistory.push(newConnection);
+                    actionHistory.push(newConnection);
                     wireSelection = null; // Reset the wire selection
                 }
             } else {
@@ -409,6 +411,27 @@ function xorGate(x, y) {
     this.logic = function(){ this.outputs[0].state = (this.inputs[0].state || this.inputs[1].state) && !((this.inputs[0].state && this.inputs[1].state))};
 }
 
+function display(x, y) {
+    // Four bit hex output
+    this.type = "display";
+    this.display = "DISPLAY.png";
+    this.position = {x: x, y: y};
+    this.inputs = [new input(this, {x: -3, y: 2}), new input(this, {x: -3, y: 12}), new input(this, {x: -3, y: 22}), new input(this, {x: -3, y: 32})];
+    this.outputs = [];
+    this.inputsProcessed = 0;
+    this.selfInputsProcessed = false;
+    this.displayOutput = "";
+    this.logic = function() {
+        var binaryCount = 0;
+        for (var i = 0; i < this.inputs.length; ++i) {
+            if (this.inputs[i].state) {
+                binaryCount += Math.pow(2, i);
+            }
+        }
+        this.displayOutput = displayValues[binaryCount];
+    };
+}
+
 function createGate(type, position = null) {
     // Create an instance of the given type
     let newGate;
@@ -417,7 +440,7 @@ function createGate(type, position = null) {
     } else {
         newGate = new window[type](offset, offset); // Bit hacky but works
     }
-    creationHistory.push(newGate);
+    actionHistory.push(newGate);
     gates.push(newGate);
 }
 
@@ -434,6 +457,9 @@ function drawLine(ax, ay, bx, by, color) {
 function drawImage(gatein) {
     // Draw the image that correlates to the given logic gate
     ctx.drawImage(gateImages[gatein.display], gatein.position.x, gatein.position.y);
+    if (gatein.type == "display") {
+        ctx.fillText(gatein.displayOutput, gatein.position.x + 38, gatein.position.y + 35);
+    }
 }
 
 function drawRing(node) {
@@ -687,8 +713,8 @@ function fileUploaded() {
 
 function undoCreation() {
     // Remove the latest gate or connection the user made
-    if (creationHistory.length > 0) {
-        var latestModification = creationHistory[creationHistory.length - 1];
+    if (actionHistory.length > 0) {
+        var latestModification = actionHistory[actionHistory.length - 1];
         if (latestModification.type == "connection") {
             // Remove a connection
             connections.splice(connections.indexOf(latestModification), 1);
@@ -697,7 +723,7 @@ function undoCreation() {
             gates.splice(gates.indexOf(latestModification), 1);
         }
     }
-    creationHistory.splice(creationHistory.length -1, 1); // Remove from the creation history
+    actionHistory.splice(actionHistory.length -1, 1); // Remove from the creation history
 }
 
 sliderUpdate();
