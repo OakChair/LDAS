@@ -53,6 +53,7 @@ var mouseWithoutMove = true; // Tracks wether the user has moved their mouse sin
 
 // Simulation stuff
 var simulationPaused = false; // General circuit pause
+var deleteEnable = false;
 var gates = [];
 var connections = [];
 var actionHistory = [];
@@ -61,7 +62,6 @@ var actionHistory = [];
 uploadImage.ondragstart = function() { return false; };
 
 customUploader.addEventListener("mousedown", function(){ 
-    console.log("MB1D");
     customUploader.classList.add("buttonDown");
 });
 
@@ -86,6 +86,18 @@ function getConnectionFeeding(node) {
             return selectCon;
         }
     }
+}
+
+function getFeedingConnections(node) {
+    // Get all the connections that start at a given node
+    var foundConnections = [];
+    for (var i = 0; i < connections.length; ++i) {
+        var selectCon = connections[i];
+        if (selectCon.fromNode == node) {
+            foundConnections.push(selectCon);
+        }
+    }
+    return foundConnections;
 }
 
 for (var i = 1; i < 6; ++i) {
@@ -135,18 +147,6 @@ function pausePlay() {
     }
 }
 
-function getFeedingConnections(node) {
-    // Get all the connections that start at a given node
-    var foundConnections = [];
-    for (var i = 0; i < connections.length; ++i) {
-        var selectCon = connections[i];
-        if (selectCon.fromNode == node) {
-            foundConnections.push(selectCon);
-        }
-    }
-    return foundConnections;
-}
-
 function array_move(arr, old_index, new_index) {
     // Move an element within an array to another point
     arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
@@ -186,41 +186,58 @@ function nearestInt(value, n) {
     return Math.round(value / n) * n;
 }
 
-c.onmousedown = function(evt) {
-    var mousePos = getMousePos(c, evt);
-    if (wireEnabled) {
-        // Ran if the wire placement is enabled
-        var onNode = null;
-        for (var i = 0; i < gates.length; ++i) {
-            // Iterate all gates
-            var selectGate = gates[i];
-            for (var x = 0; x < selectGate.inputs.length; ++x) {
-                // Iterate all the gates inputs
-                if (nodeIntersect(selectGate.inputs[x], mousePos)) {
-                    // Check if the click position is within the given input
-                    onNode = selectGate.inputs[x];
-                }
-            }
-            for (var x = 0; x < selectGate.outputs.length; ++x) {
-                // Iterate all the gates outputs
-                if (nodeIntersect(selectGate.outputs[x], mousePos)) {
-                    // Check if the click position is within the given output
-                    onNode = selectGate.outputs[x];
-                }
+function getClickContext(mousePos) {
+    var getElement = getElementFromPoint(mousePos);
+    
+    var onNode = null;
+    for (var i = 0; i < gates.length; ++i) {
+        // Iterate all gates
+        var selectGate = gates[i];
+        for (var x = 0; x < selectGate.inputs.length; ++x) {
+            // Iterate all the gates inputs
+            if (nodeIntersect(selectGate.inputs[x], mousePos)) {
+                // Check if the click position is within the given input
+                onNode = selectGate.inputs[x];
             }
         }
-        if (onNode) {
+        for (var x = 0; x < selectGate.outputs.length; ++x) {
+            // Iterate all the gates outputs
+            if (nodeIntersect(selectGate.outputs[x], mousePos)) {
+                // Check if the click position is within the given output
+                onNode = selectGate.outputs[x];
+            }
+        }
+    }
+    
+    if (onNode) {
+        return onNode;
+    } else {
+        return getElement;
+    }
+}
+
+function connectionClean(conn) {
+    conn.toNode.state = false;
+    connections.splice(connections.indexOf(conn), 1);
+}
+
+c.onmousedown = function(evt) {
+    var mousePos = getMousePos(c, evt);
+    var clickContext = getClickContext(mousePos);
+    if (!clickContext) { return; }
+    if (clickContext.type == "output" || clickContext.type == "input") {
+        if (wireEnabled) {
             // If the user did click on an input or output
             if (wireSelection) {
                 // Ran if the user has already selected the start point of a wire
-                if (onNode.type != wireSelection.type) {
+                if (clickContext.type != wireSelection.type) {
                     // Check if the user is connecting an input to an output
                     var newConnection;
                     if (wireSelection.type == "output") {
-                        newConnection = new connection(wireSelection, onNode);
+                        newConnection = new connection(wireSelection, clickContext);
                     } else {
                         // Flip the order if the user started on an output
-                        newConnection = new connection(onNode, wireSelection);
+                        newConnection = new connection(clickContext, wireSelection);
                     }
                     connections.push(newConnection);
                     actionHistory.push(newConnection);
@@ -228,14 +245,40 @@ c.onmousedown = function(evt) {
                 }
             } else {
                 // If no input or output is selected then it is set
-                wireSelection = onNode;
+                wireSelection = clickContext;
+            }
+        } else if (deleteEnable) {
+            if (clickContext.type == "output" ) {
+                var outFed = getFeedingConnections(clickContext);
+                for (var i = 0; i < outFed.length; ++i) {
+                    connectionClean(outFed[i]);
+                }
+            } else {
+                var getConn = getConnectionFeeding(clickContext);
+                if (getConn) {
+                    connectionClean(getConn);
+                }
             }
         }
     } else {
-        // Ran if the wire placement is not enabled
-        mouseWithoutMove = true;
-        targetedElement = getElementFromPoint(mousePos);
-        if (targetedElement) {
+        if (deleteEnable) {
+            for (var i = 0; i < clickContext.inputs.length; ++i) {
+                var getFeeder = getConnectionFeeding(clickContext.inputs[i]);
+                if (getFeeder) {
+                    connectionClean(getFeeder);
+                }
+            }
+            for (var i = 0; i < clickContext.outputs.length; ++i) {
+                var deadConns = getFeedingConnections(clickContext.outputs[i]);
+                for (var x = 0; x < deadConns.length; ++x) {
+                    connectionClean(deadConns[x]);
+                }
+            }
+            gates.splice(gates.indexOf(clickContext), 1);
+        } else {
+            // Ran if the wire placement is not enabled
+            mouseWithoutMove = true;
+            targetedElement = clickContext;
             // Ran if the user has clicked on an element
             selectedOffset = {x: mousePos.x - targetedElement.position.x, y: mousePos.y - targetedElement.position.y}; // Track the point they clicked on
             array_move(gates, gates.indexOf(targetedElement), gates.length - 1) // Shift the element to the end of thr list
@@ -249,21 +292,17 @@ c.onmousedown = function(evt) {
 
 c.onmouseup = function(evt) {
     var mousePos = getMousePos(c, evt);
-    if (wireEnabled) {
-        // Left incase i change the wires to drag between points
-    } else {
-        targetedElement = null;
-        selectedOffset = null; // Reset the dragging data
-        var mouseOver = getElementFromPoint(mousePos);
-        if (mouseOver) {
-            if (mouseOver.clickevent && mouseWithoutMove) {
-                mouseOver.clickevent();
-                // Run the click event if the element has one
-            }
-            if (mouseOver.mouseup) {
-                mouseOver.mouseup();
-                // Run the mouseup event if the element has one
-            }
+    targetedElement = null;
+    selectedOffset = null; // Reset the dragging data
+    var mouseOver = getClickContext(mousePos);
+    if (mouseOver) {
+        if (mouseOver.clickevent && mouseWithoutMove) {
+            mouseOver.clickevent();
+            // Run the click event if the element has one
+        }
+        if (mouseOver.mouseup) {
+            mouseOver.mouseup();
+            // Run the mouseup event if the element has one
         }
     }
 }
@@ -420,7 +459,10 @@ function beeper(x, y) {
             this.buzzerSound.pause();
         }
     }
-    
+    this.onDelete = function() {
+        this.audioLooped = false;
+        this.buzzerSound.pause();
+    }
 }
 
 function andGate(x, y) {
@@ -597,13 +639,21 @@ function drawRing(node) {
 
 function wirePress() {
     // Ran when the wire button is pressed
+    deleteEnable = false;
     targetedElement = null;
+    wireSelection = null;
     wireEnabled = !wireEnabled;
 }
 
 function resetBoard() {
     // Clear the board and reset the wire selection
     wireSelection = null;
+    for (var i = 0; i < gates.length; ++i) {
+        var getGate = gates[i];
+        if (getGate.onDelete) {
+            getGate.onDelete();
+        }
+    }
     gates = [];
     connections = [];
 }
@@ -621,7 +671,6 @@ function checkSelfConnections(checkGate) {
             if (toCon.fromNode.parentNode == checkGate) {
                 // Self linked gate being toggled
                 checkGate.inputs[i].state = toCon.fromNode.state;
-                console.log("Setting input state to " + toCon.fromNode.state.toString());
                 checkGate.inputsProcessed += 1;
             }
         }
@@ -822,13 +871,22 @@ function undoCreation() {
         var latestModification = actionHistory[actionHistory.length - 1];
         if (latestModification.type == "connection") {
             // Remove a connection
-            connections.splice(connections.indexOf(latestModification), 1);
+            connectionClean(latestModification);
         } else {
             // Remove a gate
+            if (latestModification.onDelete) {
+                latestModification.onDelete();
+            }
             gates.splice(gates.indexOf(latestModification), 1);
         }
     }
     actionHistory.splice(actionHistory.length -1, 1); // Remove from the creation history
+}
+
+function deletePress() {
+    deleteEnable = !deleteEnable;
+    wireEnabled = false;
+    wireSelection = null;
 }
 
 setTimeout(renderLoop, interval); // Start render loop
