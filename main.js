@@ -16,8 +16,6 @@
 // Canvas stuff
 var c = document.getElementById("MainCanvas");
 var ctx = c.getContext("2d");
-ctx.lineWidth = 3;
-ctx.font = "38px Tahoma";
 var cLeft = c.offsetLeft + c.clientLeft; // Set the canvas offsets
 var cTop = c.offsetTop + c.clientTop;
 var gridWidth = 6;
@@ -531,14 +529,6 @@ function wirePress() {
     // Ran when the wire button is pressed
     targetedElement = null;
     wireEnabled = !wireEnabled;
-    if (wireEnabled) {
-        // Add the active class to the button to visiually show the wire mode is active
-        wireButton.classList.add("activeBtn");
-    } else {
-        // Remove the active class to the button to visiually show the wire mode is no longer active
-        wireButton.classList.remove("activeBtn");
-        wireSelection = null;
-    }
 }
 
 function resetBoard() {
@@ -572,6 +562,8 @@ function renderLoop() {
     var canvasSize = c.getBoundingClientRect();
     c.width = canvasSize.width;
     c.height = canvasSize.height;
+    ctx.lineWidth = 3;
+    ctx.font = "38px Tahoma";
     if (!wireEnabled && !simulationPaused) {
         // Reset all nodes and connections
         for (var i = 0; i < gates.length; ++i) {
