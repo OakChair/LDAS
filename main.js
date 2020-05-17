@@ -39,7 +39,7 @@ var offset = 20;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
 var interval = 10; // Set FPS timer
-var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png"]
+var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png"]
 var gateImages = {};
 var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 
@@ -371,6 +371,32 @@ function tempButton(x, y) {
     this.logic = function(){return true;}; // Placeholder to prevent error
 }
 
+function clock(x, y) {
+    // Runs every 100 milliseconds
+    this.type = "clock";
+    this.display = "CLOCKP1.png";
+    this.position = {x: x, y: y};
+    this.inputs = [];
+    this.outputs = [new output(this, {x: 91, y: 17})];
+    this.inputsProcessed = 0;
+    this.selfInputsProcessed = false;
+    this.renderCount = 0;
+    this.clockcount = 1;
+    this.renderLimit = 8;
+    this.logic = function() {
+        this.renderCount++
+        if (this.renderCount % this.renderLimit == 0) {
+            this.clockcount++;
+        }
+        if (this.clockcount > 8) {
+            this.clockcount = 1;
+            this.renderCount = 1;
+            this.outputs[0].state = !this.outputs[0].state;
+        }
+        this.display = "CLOCKP" + this.clockcount.toString() + ".png";
+    }
+}
+
 function andGate(x, y) {
     // Basic logical AND gate
     // A B Q
@@ -607,7 +633,7 @@ function renderLoop() {
         for (var i = 0; i < gates.length; ++i) {
             // Start with all input nodes
             var selectGate = gates[i];
-            if (selectGate.type == "switch" || selectGate.type == "button") {
+            if (selectGate.type == "switch" || selectGate.type == "button" || selectGate.type == "clock") {
                 visitedNodes.push(selectGate);
             }
         }
