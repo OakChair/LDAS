@@ -371,7 +371,7 @@ function light(x, y) {
 
 function redLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "light";
+    this.type = "redLight";
     this.display = "OFFLIGHT.png";
     this.position = {x: x, y: y};
     this.inputs = [new input(this, {x: -3, y: 17})];
@@ -383,7 +383,7 @@ function redLight(x, y) {
 
 function greenLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "light";
+    this.type = "greenLight";
     this.display = "OFFLIGHT.png";
     this.position = {x: x, y: y};
     this.inputs = [new input(this, {x: -3, y: 17})];
@@ -395,7 +395,7 @@ function greenLight(x, y) {
 
 function blueLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "light";
+    this.type = "blueLight";
     this.display = "OFFLIGHT.png";
     this.position = {x: x, y: y};
     this.inputs = [new input(this, {x: -3, y: 17})];
@@ -802,6 +802,20 @@ function renderLoop() {
     
     clearCanvas(); // Clear the canvas for render
     
+    for (var i = 0; i < connections.length; ++i) {
+        // Iterate all connections
+        var selectCon = connections[i];
+        var fromPoint = {x: selectCon.fromNode.parentNode.position.x + selectCon.fromNode.offset.x + 5, y: selectCon.fromNode.parentNode.position.y + selectCon.fromNode.offset.y + 5};
+        var toPoint = {x: selectCon.toNode.parentNode.position.x + selectCon.toNode.offset.x + 5, y: selectCon.toNode.parentNode.position.y + selectCon.toNode.offset.y + 5};
+        if (selectCon.state) {
+            // Draw green line for active connection
+            drawLine(fromPoint.x, fromPoint.y, toPoint.x, toPoint.y, "#0F0");
+        } else {
+            // Draw black line for inactive connection
+            drawLine(fromPoint.x, fromPoint.y, toPoint.x, toPoint.y, "#000");
+        }
+    }
+    
     for (var i = 0; i < gates.length; ++i) {
         // Iterate all the logic gates that need to be rendered
         var selectGate = gates[i];
@@ -814,20 +828,6 @@ function renderLoop() {
             for (var x = 0; x < selectGate.outputs.length; ++x) {
                 drawRing(selectGate.outputs[x]);
             }
-        }
-    }
-    
-    for (var i = 0; i < connections.length; ++i) {
-        // Iterate all connections
-        var selectCon = connections[i];
-        var fromPoint = {x: selectCon.fromNode.parentNode.position.x + selectCon.fromNode.offset.x + 5, y: selectCon.fromNode.parentNode.position.y + selectCon.fromNode.offset.y + 5};
-        var toPoint = {x: selectCon.toNode.parentNode.position.x + selectCon.toNode.offset.x + 5, y: selectCon.toNode.parentNode.position.y + selectCon.toNode.offset.y + 5};
-        if (selectCon.state) {
-            // Draw green line for active connection
-            drawLine(fromPoint.x, fromPoint.y, toPoint.x, toPoint.y, "#0F0");
-        } else {
-            // Draw black line for inactive connection
-            drawLine(fromPoint.x, fromPoint.y, toPoint.x, toPoint.y, "#000");
         }
     }
     
