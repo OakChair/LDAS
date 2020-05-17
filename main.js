@@ -561,7 +561,7 @@ function clearCanvas() {
     ctx.clearRect(0, 0, c.width, c.height);
 }
 
-function checkSelfConnections(checkGate) { // TODO: Make this work
+function checkSelfConnections(checkGate) {
     checkGate.selfInputsProcessed = true;
     for (var i = 0; i < checkGate.inputs.length; ++i) {
         var toCon = getConnectionFeeding(checkGate.inputs[i]);
