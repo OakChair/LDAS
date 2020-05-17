@@ -20,7 +20,7 @@ var cLeft = c.offsetLeft + c.clientLeft; // Set the canvas offsets
 var cTop = c.offsetTop + c.clientTop;
 var gridWidth = 6;
 
-// User controls
+// DOM elements
 var snapCheck = document.getElementById("gridSnap");
 var wireButton = document.getElementById("wireButton");
 var FPSSlider = document.getElementById("FPSSlider"); 
@@ -28,6 +28,8 @@ var FPSLabel = document.getElementById("FPSLabel");
 var fileInput = document.getElementById("fileInput");
 var pausePlayBtn = document.getElementById("pausePlayBtn");
 var gridLockBtn = document.getElementById("gridLockBtn");
+var uploadImage = document.getElementById("uploadImage");
+var customUploader = document.getElementById("customUploader");
 
 // Render stuff
 var cats = [];
@@ -54,6 +56,22 @@ var simulationPaused = false; // General circuit pause
 var gates = [];
 var connections = [];
 var actionHistory = [];
+
+// Initialising HTML stuff
+uploadImage.ondragstart = function() { return false; };
+
+customUploader.addEventListener("mousedown", function(){ 
+    console.log("MB1D");
+    customUploader.classList.add("buttonDown");
+});
+
+function buttonUnPress() {
+    customUploader.classList.remove("buttonDown");
+}
+
+customUploader.addEventListener("mouseup", buttonUnPress);
+customUploader.addEventListener("mouseleave", buttonUnPress);
+
 
 for (var i = 0; i < gateImagesFN.length; ++i) {
     // Loads all of the file names into actual images for rendering
