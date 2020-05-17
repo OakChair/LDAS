@@ -1,198 +1,199 @@
 * {
-	margin: 0;
-	padding: 0;
-	font-family: Tahoma, Geneva, sans-serif;
+    padding: 0;
+    margin: 0;
+    font-family: Tahoma, Geneva, sans-serif;
 	font-size: 25px;
 }
 
 html, body {
     height: 100%;
     width: 100%;
+    background: white;
 }
 
 .main {
-	height: 100%;
-	width: 60%;
+    height: 100%;
+	width: 65%;
 	position: relative;
 	left: 50%;
 	transform: translatex(-50%);
 	display: block;
 	background: #ccc;
-	box-shadow: 0px 0px 15px 0px gray;
-}
-
-#MainCanvas {
-	position: relative;
-	left: 50%;
-	transform: translatex(-50%);
-	box-shadow: 0px 0px 0px 4px gray, 0px 0px 10px 0px gray;
-	background: white;
-	background-image: url(UIParts/GRID.png);
-	margin-top: 40px;
-	user-select: none;
-	border-radius: 20px;
-}
-
-.toolbox {
-	position: relative;
-	left: 50%;
-	transform: translatex(-50%);
-	margin-top: 50px;
-	display: block;
-	width: calc(90%);
-	height: 360px;
-	display: grid;
-	grid-template-columns: auto auto auto;
-	padding: 10px;
-	border-radius: 10px;
-	box-shadow: 0px 0px 10px 0px gray, 0px 0px 0px 4px gray inset;
-}
-
-.toolbox button {
-	padding: 20px;
-	background-position: center;
-	background-size: contain;
-	background-repeat: no-repeat;
-	border-radius: 5px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 .title {
-	position: absolute;
-	z-index: 99;
-	font-size: 40px;
-	left: 10px;
-	color: #333;
+    padding-top: 18px;
+    font-size: 40px;
 }
 
-.subtitle {
-	position: absolute;
-	left: 10px;
-	color: #999;
-	font-size: 20px;
-	top: 95px;
+.name {
+    color: #666;
+    padding-top: 5px;
 }
 
-button::-moz-focus-inner {
-    border: 0; 
+.version {
+    color: #888;
+    font-size: 20px;
 }
 
-.slider {
-    position: absolute;
-    top: 145px;
-    left: 100px;
-    width: calc(20% - 120px);
-    height: 15px;
-    border-radius: 5px;
-    background: #d3d3d3;
+.workspace {
+    margin-top: 20px;
+    display: block;
+    background: #bbb;
+    height: 80%;
+    margin-top: 15px;
+    border-radius: 15px;
+}
+
+#MainCanvas {
+    width: 100%;
+    background: white;
+    height: 70%;
+    background-image: url("UIParts/GRID.png");
+    box-shadow: 0px 0px 1px 1px #A5B1FF inset;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    user-select: none;
+}
+
+.toolbox {
+    margin-top: 30px;
+    width: 100%;
+    height: 30%;
+    border-radius: 15px;
+    background: none;
+}
+
+.toolset {
+    display: none;
+    width: 100%;
+    height: 80%;
+    background: #aaa;
+    overflow: hidden;
+    grid-template-columns: auto auto auto;
+}
+
+.toolset button {
+    background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+    background-color: #aaa;
     outline: none;
-    transition: opacity .2s;
+    border-color: #bbb;
 }
 
-.slider::-moz-focus-inner {
-    border: 0; 
+.activeToolset {
+    display: grid;
 }
 
-.FPSLabel {
-    position: absolute;
-    top: 137px;
-    left: 10px;
-    color: #555;
+.toolset button:first-of-type {
+  border-left-color: transparent;
+  border-top-color: transparent;
 }
 
-.GridLabel {
-    position: absolute;
-    top: 174px;
-    left: 10px;
-    color: #555;
+.toolset button:nth-child(2) {
+  border-top-color: transparent;
 }
 
-.slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #999;
+.toolset button:nth-child(3) {
+  border-right-color: transparent;
+  border-top-color: transparent;
 }
 
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  background: #999;
+.toolset button:nth-child(4) {
+  border-left-color: transparent;
+  border-bottom-color: transparent;
 }
 
-.slider:hover {
-    opacity: 1;
+.toolset button:nth-child(5) {
+  border-bottom-color: transparent;
+}
+
+.toolset button:nth-child(6) {
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.categories {
+    width: 100%;
+    height: 20%;
+    position: relative;
+    display: block;
+    background: none;
+}
+
+.activeCat {
+    background-color: #aaa !important;
+}
+
+.category {
+    width: 20%;
+    height: 100%;
+    background-color: #999;
+    display: inline-block;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+#cat1 {
+    background-image: url("UIParts/OFFSWITCH.png");
+}
+
+#cat2 {
+    background-image: url("UIParts/ANDGATE.png");
+}
+
+#cat3 {
+    background-image: url("UIParts/ONLIGHT.png");
+}
+
+#cat4 {
+    background-image: url("UIParts/TOOLS.png");
+}
+
+#cat5 {
+    background-image: url("UIParts/SETTINGS.png");
+}
+
+.settingsDiv {
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+.settingsDiv button {
+    border: none;
 }
 
 .switch {
-  position: absolute;
-  top: 179px;
-  left: 160px;
+  position: relative;
   display: inline-block;
   width: 52px;
   height: 25px;
+  margin-top: 10px;
 }
 
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
+
+.inline {
+    display: inline-block;
 }
 
-.sliderIcon {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #999;
-  transition: 400ms;
+.gridLocked {
+    background-image: url(UIParts/GRIDLOCKED.png);
 }
 
-.sliderIcon:before {
-    position: absolute;
-    content: "";
-    height: 17px;
-    width: 17px;
-    left: 4px;
-    bottom: 4px;
-    background-color: #d3d3d3;
-    transition: 200ms;
+.gridUnlocked {
+    background-image: url(UIParts/GRIDUNLOCKED.png);
 }
 
-input:checked + .sliderIcon:before {
-    transform: translateX(26px);
+.pauseBtn {
+    background-image: url(UIParts/PAUSE.png);
 }
 
-.sliderIcon.round {
-    border-radius: 37px;
-}
-
-.sliderIcon.round:before {
-    border-radius: 50%;
-}
-
-.activeBtn {
-    box-shadow: 0px 0px 12px #666 inset;
-}
-
-.loadFile {
-    position: absolute;
-    top: 255px;
-    left: 10px;
-    width: 355px;
-}
-
-.saveFile {
-    position: absolute;
-    top: 215px;
-    left: 10px;
-    width: 355px;
-}
-
-.loadFileInput {
-    opacity: 0;
-    z-index: 2;
+.playBtn {
+    background-image: url(UIParts/PLAY.png);
 }

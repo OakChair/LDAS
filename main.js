@@ -28,13 +28,17 @@ var wireButton = document.getElementById("wireButton");
 var FPSSlider = document.getElementById("FPSSlider"); 
 var FPSLabel = document.getElementById("FPSLabel");
 var fileInput = document.getElementById("fileInput");
+var pausePlayBtn = document.getElementById("pausePlayBtn");
+var gridLockBtn = document.getElementById("gridLockBtn");
 
 // Render stuff
-var snapToGrid = false;
+var cats = [];
+var toolsets = [];
+var snapToGrid = true;
 var offset = 20;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
-var interval = 50; // Set FPS timer
+var interval = 10; // Set FPS timer
 var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png"]
 var gateImages = {};
 var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
@@ -68,6 +72,53 @@ function getConnectionFeeding(node) {
     }
 }
 
+for (var i = 1; i < 6; ++i) {
+    var getCat = document.getElementById("cat" + i.toString());
+    let thisCat = i;
+    getCat.addEventListener("click", function(){
+        catClick(thisCat);
+    });
+    cats.push(getCat);
+}
+
+for (var i = 1; i < 6; ++i) {
+    var getTs = document.getElementById("ts" + i.toString());
+    toolsets.push(getTs);
+}
+
+function catClick(catNumber) {
+    for (var i = 0; i < cats.length; ++i) {
+        cats[i].classList.remove("activeCat");
+    }
+    cats[catNumber - 1].classList.add("activeCat");
+    for (var i = 0; i < toolsets.length; ++i) {
+        toolsets[i].classList.remove("activeToolset");
+    }
+    toolsets[catNumber - 1].classList.add("activeToolset");
+}
+
+function snapChange() {
+    snapToGrid = !snapToGrid;
+    if (snapToGrid) {
+        gridLockBtn.classList.add("gridLocked");
+        gridLockBtn.classList.remove("gridUnlocked");
+    } else {
+        gridLockBtn.classList.add("gridUnlocked");
+        gridLockBtn.classList.remove("gridLocked");
+    }
+}
+
+function pausePlay() {
+    simulationPaused = !simulationPaused;
+    if (simulationPaused) {
+        pausePlayBtn.classList.add("playBtn");
+        pausePlayBtn.classList.remove("pauseBtn");
+    } else {
+        pausePlayBtn.classList.add("pauseBtn");
+        pausePlayBtn.classList.remove("playBtn");
+    }
+}
+
 function getFeedingConnections(node) {
     // Get all the connections that start at a given node
     var foundConnections = [];
@@ -78,11 +129,6 @@ function getFeedingConnections(node) {
         }
     }
     return foundConnections;
-}
-
-function checkchange() {
-    // Ran when the snap to grid check is altered
-    snapToGrid = snapCheck.checked;
 }
 
 function array_move(arr, old_index, new_index) {
@@ -523,6 +569,9 @@ function checkSelfConnections(checkGate) { // TODO: Make this work
 }
 
 function renderLoop() {
+    var canvasSize = c.getBoundingClientRect();
+    c.width = canvasSize.width;
+    c.height = canvasSize.height;
     if (!wireEnabled && !simulationPaused) {
         // Reset all nodes and connections
         for (var i = 0; i < gates.length; ++i) {
@@ -643,12 +692,6 @@ function renderLoop() {
     setTimeout(renderLoop, interval); // Render again
 }
 
-function sliderUpdate() {
-    // Ran when the FPS slider is changed to update the timer interval to run at the selected frame rate
-    FPSLabel.innerHTML = FPSSlider.value + " FPS"; // Update the label
-    interval = Math.floor(1000 / FPSSlider.value);
-}
-
 function dumpAll() {
     // Convert all the gates and connections into non cyclical objects in JSON and encoded in BASE64
     var gateList = [];
@@ -725,9 +768,5 @@ function undoCreation() {
     }
     actionHistory.splice(actionHistory.length -1, 1); // Remove from the creation history
 }
-
-sliderUpdate();
-checkchange();
-FPSSlider.oninput = sliderUpdate;
 
 setTimeout(renderLoop, interval); // Start render loop
