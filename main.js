@@ -3,7 +3,7 @@
         By James Taylor
         Started 07/05/2020 14:44
         
-        Time spent: > 20Hrs
+        Time spent: > 30Hrs
         
         Notes:
          - First JavaScript project
