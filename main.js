@@ -397,17 +397,17 @@ function clock(x, y) {
     }
 }
 
-function buzzer(x, y) {
+function beeper(x, y) {
     // Plays a constant tone while powered
-    this.type = "buzzer";
+    this.type = "beeper";
     this.display = "BUZZER.png";
     this.position = {x: x, y: y};
     this.inputs = [new input(this, {x: -3, y: 17})];
     this.outputs = [];
     this.selfInputsProcessed = false;
     this.audioLooped = false;
-    this.buzzerSound = new Audio("Sound/Buzzer.mp3");
-    this.buzzerSound.parentGate = this;
+    this.buzzerSound = new Audio("Sounds/Buzzer.mp3");
+    this.buzzerSound.loop = true;
     this.logic = function() { 
         if (this.inputs[0].state) {
             if (!this.audioLooped) {
@@ -420,6 +420,7 @@ function buzzer(x, y) {
             this.buzzerSound.pause();
         }
     }
+    
 }
 
 function andGate(x, y) {
