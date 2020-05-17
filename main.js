@@ -42,6 +42,8 @@ var interval = 10; // Set FPS timer
 var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png"]
 var gateImages = {};
 var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+var modeIndent = 130;
+var modeHeight = 25;
 
 // Mouse stuff
 var lastKnownMousePos = {x: 0, y: 0}; // Track the mouse
@@ -71,7 +73,6 @@ function buttonUnPress() {
 
 customUploader.addEventListener("mouseup", buttonUnPress);
 customUploader.addEventListener("mouseleave", buttonUnPress);
-
 
 for (var i = 0; i < gateImagesFN.length; ++i) {
     // Loads all of the file names into actual images for rendering
@@ -683,7 +684,7 @@ function renderLoop() {
     c.height = canvasSize.height;
     ctx.lineWidth = 3;
     ctx.font = "38px Tahoma";
-    if (!wireEnabled && !simulationPaused) {
+    if (!simulationPaused) {
         // Reset all nodes and connections
         for (var i = 0; i < gates.length; ++i) {
             var selectGate = gates[i];
@@ -798,6 +799,19 @@ function renderLoop() {
         // Draw a line from the selected node to the mouse pointer if set
         var selectionPos = {x: wireSelection.parentNode.position.x + wireSelection.offset.x + 5, y: wireSelection.parentNode.position.y + wireSelection.offset.y + 5}
         drawLine(selectionPos.x, selectionPos.y, lastKnownMousePos.x, lastKnownMousePos.y);
+    }
+    
+    ctx.font = "20px Tahoma";
+    topl = canvasSize.width - modeIndent;
+    ctx.fillText("Mode: ", topl, modeHeight);
+    if (wireEnabled) {
+        ctx.fillStyle = "blue";
+        ctx.fillText("wire", topl + 60, modeHeight);
+    } else if (deleteEnable) {
+        ctx.fillStyle = "red";
+        ctx.fillText("delete", topl + 60, modeHeight);
+    } else {
+        ctx.fillText("normal", topl + 60, modeHeight);
     }
     
     setTimeout(renderLoop, interval); // Render again
