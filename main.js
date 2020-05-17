@@ -39,7 +39,7 @@ var offset = 20;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
 var interval = 10; // Set FPS timer
-var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png"]
+var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png", "REDLIGHT.png", "GREENLIGHT.png", "BLUELIGHT.png"]
 var gateImages = {};
 var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 var modeIndent = 130;
@@ -367,6 +367,42 @@ function light(x, y) {
     this.inputsProcessed = 0;
     this.selfInputsProcessed = false;
     this.logic = function () { if (this.inputs[0].state) {this.display = "ONLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
+}
+
+function redLight(x, y) {
+    // Used to visually display the output of a circuit
+    this.type = "light";
+    this.display = "OFFLIGHT.png";
+    this.position = {x: x, y: y};
+    this.inputs = [new input(this, {x: -3, y: 17})];
+    this.outputs = [];
+    this.inputsProcessed = 0;
+    this.selfInputsProcessed = false;
+    this.logic = function () { if (this.inputs[0].state) {this.display = "REDLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
+}
+
+function greenLight(x, y) {
+    // Used to visually display the output of a circuit
+    this.type = "light";
+    this.display = "OFFLIGHT.png";
+    this.position = {x: x, y: y};
+    this.inputs = [new input(this, {x: -3, y: 17})];
+    this.outputs = [];
+    this.inputsProcessed = 0;
+    this.selfInputsProcessed = false;
+    this.logic = function () { if (this.inputs[0].state) {this.display = "GREENLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
+}
+
+function blueLight(x, y) {
+    // Used to visually display the output of a circuit
+    this.type = "light";
+    this.display = "OFFLIGHT.png";
+    this.position = {x: x, y: y};
+    this.inputs = [new input(this, {x: -3, y: 17})];
+    this.outputs = [];
+    this.inputsProcessed = 0;
+    this.selfInputsProcessed = false;
+    this.logic = function () { if (this.inputs[0].state) {this.display = "BLUELIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function toggleSwitch(x, y) {
