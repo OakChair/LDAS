@@ -406,7 +406,7 @@ function beeper(x, y) {
     this.outputs = [];
     this.selfInputsProcessed = false;
     this.audioLooped = false;
-    this.buzzerSound = new Audio("Sounds/Buzzer.mp3");
+    this.buzzerSound = new Audio("Sounds/BUZZER.mp3");
     this.buzzerSound.loop = true;
     this.logic = function() { 
         if (this.inputs[0].state) {
