@@ -116,6 +116,7 @@ for (var i = 1; i < 6; ++i) {
 }
 
 function catClick(catNumber) {
+    // Called when a category is clicked on
     for (var i = 0; i < cats.length; ++i) {
         cats[i].classList.remove("activeCat");
     }
@@ -127,6 +128,7 @@ function catClick(catNumber) {
 }
 
 function snapChange() {
+    // Called when snap to grid id toggled on or off
     snapToGrid = !snapToGrid;
     if (snapToGrid) {
         gridLockBtn.classList.add("gridLocked");
@@ -138,6 +140,7 @@ function snapChange() {
 }
 
 function pausePlay() {
+    // Called when the simulation is paused or played
     simulationPaused = !simulationPaused;
     if (simulationPaused) {
         pausePlayBtn.classList.add("playBtn");
@@ -448,7 +451,7 @@ function tempButton(x, y) {
 }
 
 function clock(x, y) {
-    // Runs every 100 milliseconds
+    // Runs every 64 frames
     this.type = "clock";
     this.display = "CLOCKP1.png";
     this.position = {x: x, y: y};
@@ -474,7 +477,7 @@ function clock(x, y) {
 }
 
 function beeper(x, y) {
-    // Plays a constant tone while powered
+    // Plays a short tone while powered
     this.type = "beeper";
     this.display = "BUZZER.png";
     this.position = {x: x, y: y};
