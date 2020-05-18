@@ -1,7 +1,7 @@
 # LDAS
 Logic Design and Simulation
 ## Usage
-You can either open the [index file](/index.html) file in you local browser will all other files adjacent or use the [live page](https://oakchair.github.io/LDAS/). It has been tested and should work on most if not all modern mainstream browsers.
+You can either open the [index file](/index.html) file in you local browser will all other files adjacent or use the [live page](https://james11t.github.io/LDAS/). It has been tested and should work on most if not all modern mainstream browsers.
 ## Page
 The page consists of two main sections, the canvas area where the user will design and simulate the circuit, and the toolbox - where they select input element, logic gates, output elements and other tools and settings. The page should be somewhat responsive and should react well to minor changes to the viewport however the page is not designed to support mobile use.
 ## Simulation
