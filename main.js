@@ -23,8 +23,6 @@ var gridWidth = 6;
 // DOM elements
 var snapCheck = document.getElementById("gridSnap");
 var wireButton = document.getElementById("wireButton");
-var FPSSlider = document.getElementById("FPSSlider"); 
-var FPSLabel = document.getElementById("FPSLabel");
 var fileInput = document.getElementById("fileInput");
 var pausePlayBtn = document.getElementById("pausePlayBtn");
 var gridLockBtn = document.getElementById("gridLockBtn");
