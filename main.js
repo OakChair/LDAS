@@ -626,13 +626,13 @@ function display(x, y) {
     };
 }
 
-function createGate(type, position = null) {
+function createGate(gtype, position = null) {
     // Create an instance of the given type
     let newGate;
     if (position) {
-        newGate = new window[type](position.x, position.y); // Bit hacky but works
+        newGate = new window[gtype](position.x, position.y); // Bit hacky but works
     } else {
-        newGate = new window[type](offset, offset); // Bit hacky but works
+        newGate = new window[gtype](offset, offset); // Bit hacky but works
     }
     actionHistory.push(newGate);
     gates.push(newGate);
