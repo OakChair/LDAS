@@ -358,63 +358,43 @@ function connection(fromNode, toNode) {
     this.state = false;
 }
 
-function light(x, y) {
-    // Used to visually display the output of a circuit
-    this.type = "light";
-    this.display = "OFFLIGHT.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [];
+function gate(type, display, position, inputs, outputs) {
+    this.type = type;
+    this.display = display;
+    this.position = position;
+    this.inputs = inputs;
+    this.outputs = outputs;
     this.inputsProcessed = 0;
     this.selfInputsProcessed = false;
+}
+
+function light(x, y) {
+    // Used to visually display the output of a circuit
+    gate.call(this, "light", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
     this.logic = function () { if (this.inputs[0].state) {this.display = "ONLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function redLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "redLight";
-    this.display = "OFFLIGHT.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "redLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
     this.logic = function () { if (this.inputs[0].state) {this.display = "REDLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function greenLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "greenLight";
-    this.display = "OFFLIGHT.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "greenLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
     this.logic = function () { if (this.inputs[0].state) {this.display = "GREENLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function blueLight(x, y) {
     // Used to visually display the output of a circuit
-    this.type = "blueLight";
-    this.display = "OFFLIGHT.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "blueLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
     this.logic = function () { if (this.inputs[0].state) {this.display = "BLUELIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function toggleSwitch(x, y) {
     // Basic user input for a togglable on and off
-    this.type = "switch";
-    this.display = "OFFSWITCH.png";
-    this.position = {x: x, y: y};
-    this.inputs = [];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "switch", "OFFSWITCH.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
     this.clickevent = function(){ 
         this.outputs[0].state = !this.outputs[0].state;
         if (this.outputs[0].state) {
@@ -428,13 +408,7 @@ function toggleSwitch(x, y) {
 
 function tempButton(x, y) {
     // User input that stays on while the mouse is pressed and stationary
-    this.type = "button";
-    this.display = "OFFBUTTON.png";
-    this.position = {x: x, y: y};
-    this.inputs = [];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "button", "OFFBUTTON.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
     this.mousedown = function() {
         // Switch to the on state
         this.outputs[0].state = true;
@@ -450,13 +424,7 @@ function tempButton(x, y) {
 
 function clock(x, y) {
     // Runs every 64 frames
-    this.type = "clock";
-    this.display = "CLOCKP1.png";
-    this.position = {x: x, y: y};
-    this.inputs = [];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "clock", "CLOCKP1.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
     this.renderCount = 0;
     this.clockcount = 1;
     this.renderLimit = 8;
@@ -476,12 +444,7 @@ function clock(x, y) {
 
 function beeper(x, y) {
     // Plays a short tone while powered
-    this.type = "beeper";
-    this.display = "BUZZER.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [];
-    this.selfInputsProcessed = false;
+    gate.call(this, "beeper", "BUZZER.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
     this.audioLooped = false;
     this.buzzerSound = new Audio("Sounds/BUZZER.wav");
     this.buzzerSound.loop = true;
@@ -510,13 +473,7 @@ function andGate(x, y) {
     // 0 1 0
     // 1 0 0
     // 1 1 1
-    this.type = "andGate";
-    this.display = "ANDGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "andGate", "ANDGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ 
         this.outputs[0].state = this.inputs[0].state && this.inputs[1].state;
     };
@@ -529,13 +486,7 @@ function orGate(x, y) {
     // 0 1 1
     // 1 0 1
     // 1 1 1
-    this.type = "orGate";
-    this.display = "ORGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "orGate", "ORGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ this.outputs[0].state = this.inputs[0].state || this.inputs[1].state};
 }
 
@@ -544,13 +495,7 @@ function notGate(x, y) {
     // A Q
     // 0 1
     // 1 0
-    this.type = "notGate";
-    this.display = "NOTGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 17})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "notGate", "NOTGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ this.outputs[0].state = !this.inputs[0].state};
 }
 
@@ -561,13 +506,7 @@ function nandGate(x, y) {
     // 0 1 1
     // 1 0 1
     // 1 1 0
-    this.type = "nandGate";
-    this.display = "NANDGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "nandGate", "NANDGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ this.outputs[0].state = !(this.inputs[0].state && this.inputs[1].state) };
 }
 
@@ -578,13 +517,7 @@ function norGate(x, y) {
     // 0 1 0
     // 1 0 0
     // 1 1 0
-    this.type = "norGate";
-    this.display = "NORGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "norGate", "NORGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ this.outputs[0].state = !(this.inputs[0].state || this.inputs[1].state)};
 }
 
@@ -595,25 +528,13 @@ function xorGate(x, y) {
     // 0 1 1
     // 1 0 1
     // 1 1 0
-    this.type = "xorGate";
-    this.display = "XORGATE.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})];
-    this.outputs = [new output(this, {x: 91, y: 17})];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "xorGate", "XORGATE.png", {x: x, y: y}, [new input(this, {x: -3, y: 7}), new input(this, {x: -3, y: 27})], [new output(this, {x: 91, y: 17})]);
     this.logic = function(){ this.outputs[0].state = (this.inputs[0].state || this.inputs[1].state) && !((this.inputs[0].state && this.inputs[1].state))};
 }
 
 function display(x, y) {
     // Four bit hex output
-    this.type = "display";
-    this.display = "DISPLAY.png";
-    this.position = {x: x, y: y};
-    this.inputs = [new input(this, {x: -3, y: 2}), new input(this, {x: -3, y: 12}), new input(this, {x: -3, y: 22}), new input(this, {x: -3, y: 32})];
-    this.outputs = [];
-    this.inputsProcessed = 0;
-    this.selfInputsProcessed = false;
+    gate.call(this, "display", "DISPLAY.png", {x: x, y: y}, [new input(this, {x: -3, y: 2}), new input(this, {x: -3, y: 12}), new input(this, {x: -3, y: 22}), new input(this, {x: -3, y: 32})], []);
     this.displayOutput = "";
     this.logic = function() {
         var binaryCount = 0;
