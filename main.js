@@ -33,7 +33,7 @@ var customUploader = document.getElementById("customUploader");
 var cats = [];
 var toolsets = [];
 var snapToGrid = true;
-var offset = 20;
+var offset = 24;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
 var interval = 10; // Set FPS timer
@@ -234,6 +234,10 @@ c.onmousedown = function(evt) {
                 // Ran if the user has already selected the start point of a wire
                 if (clickContext.type != wireSelection.type) {
                     // Check if the user is connecting an input to an output
+                    if (clickContext.type == "input" && getConnectionFeeding(clickContext)) {
+                        return;
+                    }
+                    
                     var newConnection;
                     if (wireSelection.type == "output") {
                         newConnection = new connection(wireSelection, clickContext);
@@ -247,6 +251,9 @@ c.onmousedown = function(evt) {
                 }
             } else {
                 // If no input or output is selected then it is set
+                if (clickContext.type == "input" && getConnectionFeeding(clickContext)) {
+                    return;
+                }
                 wireSelection = clickContext;
             }
         } else if (deleteEnable) {
