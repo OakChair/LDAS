@@ -3,6 +3,7 @@ var browser = (function (agent) {
         case agent.indexOf("edge") > -1: return "edge";
         case agent.indexOf("edg") > -1: return "chromium based edge (dev or canary)";
         case agent.indexOf("opr") > -1 && !!window.opr: return "opera";
+        case !!navigator.brave && await navigator.brave.isBrave(): return "brave";
         case agent.indexOf("chrome") > -1 && !!window.chrome: return "chrome";
         case agent.indexOf("trident") > -1: return "ie";
         case agent.indexOf("firefox") > -1: return "firefox";

@@ -21,13 +21,14 @@ var cTop = c.offsetTop + c.clientTop;
 var gridWidth = 6;
 
 // DOM elements
-var snapCheck = document.getElementById("gridSnap");
-var wireButton = document.getElementById("wireButton");
-var fileInput = document.getElementById("fileInput");
-var pausePlayBtn = document.getElementById("pausePlayBtn");
-var gridLockBtn = document.getElementById("gridLockBtn");
-var uploadImage = document.getElementById("uploadImage");
-var customUploader = document.getElementById("customUploader");
+var fromId = (x) => document.getElementById(x);
+var snapCheck = fromId("gridSnap");
+var wireButton = fromId("wireButton");
+var fileInput = fromId("fileInput");
+var pausePlayBtn = fromId("pausePlayBtn");
+var gridLockBtn = fromId("gridLockBtn");
+var uploadImage = fromId("uploadImage");
+var customUploader = fromId("customUploader");
 
 // Render stuff
 var cats = [];
@@ -37,9 +38,8 @@ var offset = 24;
 var imgx = 97; // Image sizes for hit detection
 var imgy = 44; //
 var interval = 10; // Set FPS timer
-var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png", "REDLIGHT.png", "GREENLIGHT.png", "BLUELIGHT.png"]
+var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png", "REDLIGHT.png", "GREENLIGHT.png", "BLUELIGHT.png"];
 var gateImages = {};
-var displayValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 var modeIndent = 130;
 var modeHeight = 25;
 
@@ -550,7 +550,7 @@ function display(x, y) {
                 binaryCount += Math.pow(2, i);
             }
         }
-        this.displayOutput = displayValues[binaryCount];
+        this.displayOutput = binaryCount.toString(16).toUpperCase();
     };
 }
 
@@ -567,7 +567,7 @@ function createGate(gtype, position = null) {
 }
 
 function drawLine(ax, ay, bx, by, color) {
-    // Draw a basic line from point (ax, ay) to (bx, by)
+    // Draw a bezier curve from point (ax, ay) to (bx, by)
     ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(ax, ay);
@@ -830,11 +830,13 @@ function loadAll(loadString) {
 }
 
 function saveCircuit() {
+    // Compile the circuit data into utf-8 byte data for a file
     var blob = new Blob([dumpAll()], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "circuit.ldas");
 }
 
 function fileUploaded() {
+    // Read data from an uploaded file
     var read = new FileReader();
 
     read.readAsText(fileInput.files[0]);
