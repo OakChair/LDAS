@@ -13,6 +13,11 @@
          - Assumed not to be functional in Internet Explorer 9 due to a lack of support for modern technologies
 */
 
+// Check for ie
+if (window.navigator.userAgent.toLowerCase().indexOf("trident") > -1) {
+    alert("Internet explorer is not supported");
+}
+
 // Canvas stuff
 var c = document.getElementById("MainCanvas");
 var ctx = c.getContext("2d");
