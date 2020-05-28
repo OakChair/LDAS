@@ -645,6 +645,11 @@ function ttOpen() {
             pausePlay();
         }
         var inputs = getInputNodes();
+        if (inputs.length > 8) {
+            if (!confirm("Generating a truth table with more than 8 inputs may either take a long time or just completely crash, are you sure you want to continue?")) {
+                return;
+            }
+        }
         var outputs = getOutputNodes();
         var inputCalcs = [];
         var outputCalcs = [];
