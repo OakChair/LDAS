@@ -904,6 +904,7 @@ function drawCanvas() {
     }
 
     if (labelsEnabled) {
+        // Label all input and output elements
         ctx.fillStyle = "black";
         var inputs = getInputNodes();
         var outputs = getOutputNodes();
