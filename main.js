@@ -657,7 +657,7 @@ function ttOpen() {
                 inputs[x].outputs[0].state = rowConfig[x];
             }
             inputCalcs.push(rowConfig);
-            simulateLogic();
+            simulateLogic(); // Run logic for this input set
             var thisOuputs = [];
             for (var x = 0; x < outputs.length; ++x) {
                 thisOuputs.push(outputs[x].inputs[0].state);
@@ -666,28 +666,31 @@ function ttOpen() {
         }
         for (var i = 0; i < inputs.length; ++i) {
             if (inputs[i].clickevent) {
+                // Reset all input nodes
                 inputs[i].clickevent();
             }
         }
-        console.log(inputCalcs);
-        console.log(outputCalcs);
         // Draw table
-        truthTable.innerHTML = "";
+        truthTable.innerHTML = ""; // Clear table
         var topBar = document.createElement("tr");
         for (var x = 0; x < inputs.length; ++x) {
+            // Create input headers
             var newCol = document.createElement("th");
             newCol.appendChild(document.createTextNode((x + 1).toString()));
             topBar.appendChild(newCol);
         }
         for (var x = 0; x < outputs.length; ++x) {
+            // Create output headers
             var newCol = document.createElement("th");
             newCol.appendChild(document.createTextNode("Q" + (x + 1).toString()));
             topBar.appendChild(newCol);
         }
         truthTable.appendChild(topBar);
         for (var i = 0; i < allOnInt; ++i) {
+            // Create all rows
             var newRow = document.createElement("tr");
             for (var x = 0; x < inputCalcs[0].length; ++x) {
+                // Add each on off for inputs
                 var newCol = document.createElement("td");
                 if (inputCalcs[i][x]) {
                     newCol.appendChild(document.createTextNode("on"));
@@ -697,6 +700,7 @@ function ttOpen() {
                 newRow.appendChild(newCol);
             }
             for (var j = 0; j < outputCalcs[i].length; ++j) {
+                // Add each on off for outputs
                 var newCol2 = document.createElement("td");
                 if (outputCalcs[i][j]) {
                     newCol2.appendChild(document.createTextNode("on"));
