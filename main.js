@@ -640,17 +640,22 @@ function padBin(rowConfig, inputCount) {
 function ttOpen() {
     truthTabelEnable = !truthTabelEnable;
     if (truthTabelEnable) {
-        if (!simulationPaused) {
-            // Pause simulation if its enabled
-            pausePlay();
-        }
         var inputs = getInputNodes();
+        var outputs = getOutputNodes();
+        if (inputs.length == 0 || outputs.length == 0) {
+            return;
+        }
         if (inputs.length > 8) {
             if (!confirm("Generating a truth table with more than 8 inputs may either take a long time or just completely crash, are you sure you want to continue?")) {
                 return;
             }
         }
-        var outputs = getOutputNodes();
+        
+        if (!simulationPaused) {
+            // Pause simulation if its enabled
+            pausePlay();
+        }
+
         var inputCalcs = [];
         var outputCalcs = [];
         var allOnInt = Math.pow(2, inputs.length); // Calculate number of possible input configurations
