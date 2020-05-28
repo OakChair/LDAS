@@ -29,6 +29,8 @@ var pausePlayBtn = fromId("pausePlayBtn");
 var gridLockBtn = fromId("gridLockBtn");
 var uploadImage = fromId("uploadImage");
 var customUploader = fromId("customUploader");
+var popup = fromId("popup");
+var truthTable = fromId("truthTable");
 
 // Render stuff
 var cats = [];
@@ -54,6 +56,7 @@ var mouseWithoutMove = true; // Tracks wether the user has moved their mouse sin
 // Simulation stuff
 var simulationPaused = false; // General circuit pause
 var deleteEnable = false;
+var truthTabelEnable = false;
 var gates = [];
 var connections = [];
 var actionHistory = [];
@@ -554,6 +557,28 @@ function display(x, y) {
     };
 }
 
+function getInputNodes() {
+    var inputNodes = [];
+    for (var i = 0; i < gates.length; ++i) {
+        var selectGate = gates[i];
+        if (selectGate.type == "switch" || selectGate.type == "button" || selectGate.type == "clock") {
+            inputNodes.push(selectGate);
+        }
+    }
+    return inputNodes;
+}
+
+function getOutputNodes() {
+    var outputNodes = [];
+    for (var i = 0; i < gates.length; ++i) {
+        var selectGate = gates[i];
+        if (selectGate.type == "beeper" || selectGate.type == "light" || selectGate.type.indexOf("Light") > -1) {
+            outputNodes.push(selectGate);
+        }
+    }
+    return outputNodes;
+}
+
 function createGate(gtype, position = null) {
     // Create an instance of the given type
     let newGate;
@@ -603,6 +628,91 @@ function drawRing(node) {
     ctx.drawImage(gateImages["NODEHIGHLIGHT.png"], gate.position.x + node.offset.x, gate.position.y + node.offset.y);
 }
 
+function padBin(rowConfig, inputCount) {
+    // Add false to the left of the array until its at the desired length
+    var neededFalses = inputCount - rowConfig.length;
+    for (var x = 0; x < neededFalses; ++x) {
+        rowConfig.unshift(false);
+    }
+    return rowConfig;
+}
+
+function ttOpen() {
+    truthTabelEnable = !truthTabelEnable;
+    if (truthTabelEnable) {
+        if (!simulationPaused) {
+            // Pause simulation if its enabled
+            pausePlay();
+        }
+        var inputs = getInputNodes();
+        var outputs = getOutputNodes();
+        var inputCalcs = [];
+        var outputCalcs = [];
+        var allOnInt = Math.pow(2, inputs.length); // Calculate number of possible input configurations
+        for (var i = 0; i < allOnInt; ++i) {
+            // Convert number to binary array and replace 1 with true and 0 with false
+            var rowConfig = i.toString(2).split("").map((x) => x == "1");
+            rowConfig = padBin(rowConfig, inputs.length); // Add falses to the left to padd out to correct length
+            for (var x = 0; x < rowConfig.length; ++x) {
+                inputs[x].outputs[0].state = rowConfig[x];
+            }
+            inputCalcs.push(rowConfig);
+            simulateLogic();
+            var thisOuputs = [];
+            for (var x = 0; x < outputs.length; ++x) {
+                thisOuputs.push(outputs[x].inputs[0].state);
+            }
+            outputCalcs.push(thisOuputs);
+        }
+        for (var i = 0; i < inputs.length; ++i) {
+            if (inputs[i].clickevent) {
+                inputs[i].clickevent();
+            }
+        }
+        console.log(inputCalcs);
+        console.log(outputCalcs);
+        // Draw table
+        truthTable.innerHTML = "";
+        var topBar = document.createElement("tr");
+        for (var x = 0; x < inputs.length; ++x) {
+            var newCol = document.createElement("th");
+            newCol.appendChild(document.createTextNode((x + 1).toString()));
+            topBar.appendChild(newCol);
+        }
+        for (var x = 0; x < outputs.length; ++x) {
+            var newCol = document.createElement("th");
+            newCol.appendChild(document.createTextNode("Q" + (x + 1).toString()));
+            topBar.appendChild(newCol);
+        }
+        truthTable.appendChild(topBar);
+        for (var i = 0; i < allOnInt; ++i) {
+            var newRow = document.createElement("tr");
+            for (var x = 0; x < inputCalcs[0].length; ++x) {
+                var newCol = document.createElement("td");
+                if (inputCalcs[i][x]) {
+                    newCol.appendChild(document.createTextNode("on"));
+                } else {
+                    newCol.appendChild(document.createTextNode("off"));
+                }
+                newRow.appendChild(newCol);
+            }
+            for (var j = 0; j < outputCalcs[i].length; ++j) {
+                var newCol2 = document.createElement("td");
+                if (outputCalcs[i][j]) {
+                    newCol2.appendChild(document.createTextNode("on"));
+                } else {
+                    newCol2.appendChild(document.createTextNode("off"));
+                }
+                newRow.appendChild(newCol2);
+            }
+            truthTable.appendChild(newRow);
+        }
+        popup.classList.add("popupShown");
+    } else {
+        popup.classList.remove("popupShown");
+    }
+}
+
 function wirePress() {
     // Ran when the wire button is pressed
     deleteEnable = false;
@@ -643,94 +753,80 @@ function checkSelfConnections(checkGate) {
     }
 }
 
-function renderLoop() {
+function scaleCanvas() {
     var canvasSize = c.getBoundingClientRect();
     c.width = canvasSize.width;
     c.height = canvasSize.height;
-    ctx.lineWidth = 3;
-    ctx.font = "38px Tahoma";
-    if (!simulationPaused) {
-        // Reset all nodes and connections
-        for (var i = 0; i < gates.length; ++i) {
-            var selectGate = gates[i];
-            /*for (var k = 0; k < selectGate.inputs; ++k) {
-                selectGate.inputs[k].state = false;
+}
+
+function simulateLogic() {
+    // Reset all nodes and connections
+    for (var i = 0; i < gates.length; ++i) {
+        var selectGate = gates[i];
+        selectGate.inputsProcessed = 0;
+        selectGate.selfInputsProcessed = false;
+        selectGate.logic();
+    }
+
+    // Disable all connections
+    for (var i = 0; i < connections.length; ++i) {
+        connections[i].state = false;
+    }
+
+    // Process logic
+    var visitedNodes = getInputNodes();
+    
+    while (visitedNodes.length > 0) {
+        var doneNodes = [];
+        var passIncremented = false;
+        for (var i = 0; i < visitedNodes.length; ++i) {
+            // Process all the logic for the nodes
+            var selectNode = visitedNodes[i];
+            if (!selectNode.selfInputsProcessed) {
+                checkSelfConnections(selectNode);
             }
-            for (var k = 0; k < selectGate.outputs; ++k) {
-                selectGate.outputs[k].state = false;
-            }*/
-            selectGate.inputsProcessed = 0;
-            selectGate.selfInputsProcessed = false;
-            selectGate.logic();
-        }
-        
-        // Disable all connections
-        for (var i = 0; i < connections.length; ++i) {
-            connections[i].state = false;
-        }
-        
-        // Process logic
-        var visitedNodes = [];
-        for (var i = 0; i < gates.length; ++i) {
-            // Start with all input nodes
-            var selectGate = gates[i];
-            if (selectGate.type == "switch" || selectGate.type == "button" || selectGate.type == "clock") {
-                visitedNodes.push(selectGate);
-            }
-        }
-        
-        while (visitedNodes.length > 0) {
-            var doneNodes = [];
-            var passIncremented = false;
-            for (var i = 0; i < visitedNodes.length; ++i) {
-                // Process all the logic for the nodes
-                var selectNode = visitedNodes[i];
-                if (!selectNode.selfInputsProcessed) {
-                    checkSelfConnections(selectNode);
-                }
-                if (selectNode.inputsProcessed >= selectNode.inputs.length) {
-                    // Ran if all of the inputs for the node has been processed
-                    passIncremented = true;
-                    doneNodes.push(i); // Used to remove the node from the need to process node list
-                    selectNode.logic();
-                    for (var x = 0; x < selectNode.outputs.length; ++x) {
-                        var selectOutput = selectNode.outputs[x];
-                        var conns = getFeedingConnections(selectOutput);
-                        // Get the connections that the output of the node feeds
-                        for (var x = 0; x < conns.length; ++x) {
-                            // Iterate all the connections
-                            var conn = conns[x];
-                            if (selectOutput.state) {
-                                // Set the connection state to on
-                                conn.state = true;
-                                conn.toNode.state = true;
-                            } else {
-                                // Set the connections state to off
-                                conn.state = false;
-                                conn.toNode.state = false;
-                            }
-                            if (visitedNodes.indexOf(conn.toNode.parentNode) < 0) {
-                                // Ran if the new gate isnt in the need to process list
-                                visitedNodes.push(conn.toNode.parentNode);
-                            }
-                            conn.toNode.parentNode.inputsProcessed += 1; // Increment the process counter for the inputs
+            if (selectNode.inputsProcessed >= selectNode.inputs.length) {
+                // Ran if all of the inputs for the node has been processed
+                passIncremented = true;
+                doneNodes.push(i); // Used to remove the node from the need to process node list
+                selectNode.logic();
+                for (var x = 0; x < selectNode.outputs.length; ++x) {
+                    var selectOutput = selectNode.outputs[x];
+                    var conns = getFeedingConnections(selectOutput);
+                    // Get the connections that the output of the node feeds
+                    for (var x = 0; x < conns.length; ++x) {
+                        // Iterate all the connections
+                        var conn = conns[x];
+                        if (selectOutput.state) {
+                            // Set the connection state to on
+                            conn.state = true;
+                            conn.toNode.state = true;
+                        } else {
+                            // Set the connections state to off
+                            conn.state = false;
+                            conn.toNode.state = false;
                         }
+                        if (visitedNodes.indexOf(conn.toNode.parentNode) < 0) {
+                            // Ran if the new gate isnt in the need to process list
+                            visitedNodes.push(conn.toNode.parentNode);
+                        }
+                        conn.toNode.parentNode.inputsProcessed += 1; // Increment the process counter for the inputs
                     }
                 }
             }
-            for (var i = 0; i < doneNodes.length; ++i) {
-                // Remove all proccessed nodes from the to process list
-                visitedNodes.splice(doneNodes[i], 1);
-            }
-            if (!passIncremented) {
-                // Break if the pass resulted in no calculations meaning that all viable connections have been proccessed
-                break;
-            }
+        }
+        for (var i = 0; i < doneNodes.length; ++i) {
+            // Remove all proccessed nodes from the to process list
+            visitedNodes.splice(doneNodes[i], 1);
+        }
+        if (!passIncremented) {
+            // Break if the pass resulted in no calculations meaning that all viable connections have been proccessed
+            break;
         }
     }
-    
-    clearCanvas(); // Clear the canvas for render
-    
+}
+
+function drawCanvas() {
     for (var i = 0; i < connections.length; ++i) {
         // Iterate all connections
         var selectCon = connections[i];
@@ -767,7 +863,7 @@ function renderLoop() {
     }
     
     ctx.font = "20px Tahoma";
-    topl = canvasSize.width - modeIndent;
+    topl = c.getBoundingClientRect().width - modeIndent;
     ctx.fillText("Mode: ", topl, modeHeight);
     if (wireEnabled) {
         ctx.fillStyle = "blue";
@@ -778,7 +874,21 @@ function renderLoop() {
     } else {
         ctx.fillText("normal", topl + 60, modeHeight);
     }
+}
+
+function renderLoop() {
+    scaleCanvas();
+    ctx.lineWidth = 3;
+    ctx.font = "38px Tahoma";
+
+    if (!simulationPaused) {
+        simulateLogic()
+    }
     
+    clearCanvas(); // Clear the canvas for render
+    
+    drawCanvas(); // Draw all circuit elements
+
     setTimeout(renderLoop, interval); // Render again
 }
 

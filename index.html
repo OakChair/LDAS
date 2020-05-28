@@ -64,13 +64,18 @@
                         <button style="background-image: url(UIParts/DOWNLOAD.png);" onclick="saveCircuit()"></button>
                         <button style="" onclick="snapChange()" id="gridLockBtn" class="gridLocked"></button>
                         <button style="" onclick="pausePlay()" id="pausePlayBtn" class="pauseBtn"></button>
-                        <button style="" onclick=""></button>
+                        <button style="background-image: url(UIParts/TRUTHTABLE.png)" onclick="ttOpen()"></button>
                         <button style="" onclick=""></button>
                     </div>
                     <div class="categories">
                         <div class="category activeCat" id="cat1"></div><div class="category" id="cat2"></div><div class="category" id="cat3"></div><div class="category" id="cat4"></div><div class="category" id="cat5"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="popup" id="popup" onclick="ttOpen()">
+            <div class="tablePopup">
+                <table id="truthTable" class="truthTable"></table>
             </div>
         </div>
         <script src="main.js" type="text/javascript"></script>

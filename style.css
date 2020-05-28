@@ -235,3 +235,49 @@ input[type="file"] {
 .buttonDown {
     border-style: inset !important;
 }
+
+.popupShown {
+    display: block !important;
+}
+
+.popup {
+    position: fixed;
+    left: 0;
+    top: 0;
+    opacity: 1;
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+}
+
+.tablePopup {
+    width: 60%;
+    height: 60%;
+    display: block;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    background: #fff;
+    overflow-y: scroll;
+}
+
+.truthTable {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+  
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
