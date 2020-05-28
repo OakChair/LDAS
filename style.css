@@ -271,13 +271,21 @@ input[type="file"] {
     border-collapse: collapse;
 }
 
-
 td, th {
-    border: 1px solid #dddddd;
+    border: 1px solid #ddd;
     text-align: left;
     padding: 8px;
 }
   
 tr:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #ddd;
 }
+
+.labelOn {
+    background-image: url(UIParts/LABELON.png);
+}
+
+.labelOff {
+    background-image: url(UIParts/LABELOFF.png);
+}
+

@@ -31,6 +31,7 @@ var uploadImage = fromId("uploadImage");
 var customUploader = fromId("customUploader");
 var popup = fromId("popup");
 var truthTable = fromId("truthTable");
+var labelButton = fromId("labelButton");
 
 // Render stuff
 var cats = [];
@@ -44,6 +45,8 @@ var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", 
 var gateImages = {};
 var modeIndent = 130;
 var modeHeight = 25;
+var labelsEnabled = false;
+var upperAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 // Mouse stuff
 var lastKnownMousePos = {x: 0, y: 0}; // Track the mouse
@@ -686,7 +689,7 @@ function ttOpen() {
         for (var x = 0; x < inputs.length; ++x) {
             // Create input headers
             var newCol = document.createElement("th");
-            newCol.appendChild(document.createTextNode((x + 1).toString()));
+            newCol.appendChild(document.createTextNode(upperAlpha[x]));
             topBar.appendChild(newCol);
         }
         for (var x = 0; x < outputs.length; ++x) {
@@ -724,6 +727,17 @@ function ttOpen() {
         popup.classList.add("popupShown");
     } else {
         popup.classList.remove("popupShown");
+    }
+}
+
+function labelToggle() {
+    labelsEnabled = !labelsEnabled;
+    if (labelsEnabled) {
+        labelButton.classList.remove("labelOff");
+        labelButton.classList.add("labelOn");
+    } else {
+        labelButton.classList.add("labelOff");
+        labelButton.classList.remove("labelOn");
     }
 }
 
@@ -887,6 +901,20 @@ function drawCanvas() {
         ctx.fillText("delete", topl + 60, modeHeight);
     } else {
         ctx.fillText("normal", topl + 60, modeHeight);
+    }
+
+    if (labelsEnabled) {
+        ctx.fillStyle = "black";
+        var inputs = getInputNodes();
+        var outputs = getOutputNodes();
+        for (var i = 0; i < inputs.length; ++i) {
+            var inputIter = inputs[i];
+            ctx.fillText(upperAlpha[i], inputIter.position.x - 10, inputIter.position.y + 29);
+        }
+        for (var i = 0; i < outputs.length; ++i) {
+            var outputIter = outputs[i];
+            ctx.fillText("Q" + (i + 1).toString(), outputIter.position.x + 4, outputIter.position.y + 15);
+        }
     }
 }
 
