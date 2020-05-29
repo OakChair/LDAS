@@ -76,7 +76,6 @@ html, body {
     background: #aaa;
     overflow: hidden;
     grid-template: repeat(2, 1fr) / repeat(3, 1fr);
-    //grid-template-columns: auto auto auto;
 }
 
 .toolset button {
@@ -247,10 +246,14 @@ input[type="file"] {
     z-index: 99;
 }
 
+.tablePopupShown {
+    display: block !important;
+}
+
 .tablePopup {
     width: 60%;
     height: 60%;
-    display: block;
+    display: none;
     position: relative;
     left: 50%;
     top: 50%;
@@ -284,3 +287,15 @@ tr:nth-child(even) {
     background-image: url(UIParts/LABELOFF.png);
 }
 
+.propositionalPopup {
+    display: block;
+    width: 40%;
+    height: 40%;
+    background: white;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 8px;
+    overflow-y: scroll;
+}

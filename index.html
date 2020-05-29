@@ -14,9 +14,9 @@
                 alert("Internet Explorer is not supported");
             }
         </script>
-        <link rel="preload" href="UIParts/GRIDUNLOCKED.png" as="img">
-        <link rel="preload" href="UIParts/LABELON.png" as="img">
-        <link rel="preload" href="UIParts/PLAY.png" as="img">
+        <link rel="preload" href="UIParts/GRIDUNLOCKED.png" as="image">
+        <link rel="preload" href="UIParts/LABELON.png" as="image">
+        <link rel="preload" href="UIParts/PLAY.png" as="image">
     </head>
     <body>
         <div class="main">
@@ -31,9 +31,9 @@
                         <button style="background-image: url(UIParts/OFFSWITCH.png);" onclick="createGate('toggleSwitch')"></button>
                         <button style="background-image: url(UIParts/OFFBUTTON.png);" onclick="createGate('tempButton')"></button>
                         <button style="background-image: url(UIParts/CLOCK.png);" onclick="createGate('clock')"></button>
-                        <button style="" onclick=""></button>
-                        <button style="" onclick=""></button>
-                        <button style="" onclick=""></button>
+                        <button onclick=""></button>
+                        <button onclick=""></button>
+                        <buttom onclick=""></button>
                     </div>
                     <div class="toolset" id="ts2">
                         <button style="background-image: url(UIParts/ANDGATE.png);" onclick="createGate('andGate')"></button>
@@ -56,8 +56,8 @@
                         <button style="background-image: url(UIParts/TRASH.png);" onclick="deletePress()"></button>
                         <button style="background-image: url(UIParts/UNDO.png);" onclick="undoCreation()"></button>
                         <button style="background-image: url(UIParts/CLEAR.png);" onclick="resetBoard()"></button>
-                        <button style="background-image: url(UIParts/TRUTHTABLE.png)" onclick="ttOpen()"></button>
-                        <button style="" onclick=""></button>
+                        <button style="background-image: url(UIParts/TRUTHTABLE.png)" onclick="showTruthTable()"></button>
+                        <button style="background-image: url(UIParts/PROPOSITIONAL.png)" onclick="showPropositional()"></button>
                     </div>
                     <div class="toolset" id="ts5">
                         <div class="fileContainer">
@@ -65,10 +65,10 @@
                             <input id="fileInput" type="file" oninput="fileUploaded()"/>
                         </div>
                         <button style="background-image: url(UIParts/DOWNLOAD.png);" onclick="saveCircuit()"></button>
-                        <button style="" onclick="snapChange()" id="gridLockBtn" class="gridLocked"></button>
-                        <button style="" onclick="pausePlay()" id="pausePlayBtn" class="pauseBtn"></button>
-                        <button style="" onclick="labelToggle()" id="labelButton" class="labelOff"></button>
-                        <button style="" onclick=""></button>
+                        <button onclick="snapChange()" id="gridLockBtn" class="gridLocked"></button>
+                        <button onclick="pausePlay()" id="pausePlayBtn" class="pauseBtn"></button>
+                        <button onclick="labelToggle()" id="labelButton" class="labelOff"></button>
+                        <button></button>
                     </div>
                     <div class="categories">
                         <div class="category activeCat" id="cat1"></div><div class="category" id="cat2"></div><div class="category" id="cat3"></div><div class="category" id="cat4"></div><div class="category" id="cat5"></div>
@@ -76,9 +76,11 @@
                 </div>
             </div>
         </div>
-        <div class="popup" id="popup" onclick="ttOpen()">
-            <div class="tablePopup">
+        <div class="popup" id="popup" onclick="closePopup()">
+            <div class="tablePopup" id="tablePopup">
                 <table id="truthTable" class="truthTable"></table>
+            </div>
+            <div class="propositionalPopup" id="propositionalPopup">
             </div>
         </div>
         <script src="main.js" type="text/javascript"></script>

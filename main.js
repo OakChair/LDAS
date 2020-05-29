@@ -3,7 +3,7 @@
         By James Taylor
         Started 07/05/2020 14:44
         
-        Time spent: > 30Hrs
+        Time spent: > 40Hrs
         
         Notes:
          - First JavaScript project
@@ -31,7 +31,9 @@ var uploadImage = fromId("uploadImage");
 var customUploader = fromId("customUploader");
 var popup = fromId("popup");
 var truthTable = fromId("truthTable");
+var tablePopup = fromId("tablePopup");
 var labelButton = fromId("labelButton");
+var propositionalPopup = fromId("propositionalPopup");
 
 // Render stuff
 var cats = [];
@@ -59,10 +61,12 @@ var mouseWithoutMove = true; // Tracks wether the user has moved their mouse sin
 // Simulation stuff
 var simulationPaused = false; // General circuit pause
 var deleteEnable = false;
-var truthTabelEnable = false;
 var gates = [];
+var inputs = [];
+var outputs = [];
 var connections = [];
 var actionHistory = [];
+var logicRenders = {"andGate": "(# ∧ @)", "orGate": "(# ∨ @)", "xorGate": "(# ⊕ @)", "notGate": "¬(#)", "nandGate": "¬(# ∧ @)", "norGate": "¬(# ∨ @)", "equal": "Q = #"};
 
 // Initialising HTML stuff
 uploadImage.ondragstart = function() { return false; };
@@ -81,6 +85,16 @@ customUploader.addEventListener("mouseleave", buttonUnPress);
 for (var i = 0; i < gateImagesFN.length; ++i) {
     // Loads all of the file names into actual images for rendering
     gateImages[gateImagesFN[i]] = loadImage(gateImagesFN[i]);
+}
+
+function inputId(index) {
+    console.log(index);
+    var divisor = Math.floor(index / (upperAlpha.length));
+    if (divisor > 0) {
+        return (upperAlpha[index - divisor * upperAlpha.length] + divisor.toString());
+    } else {
+        return upperAlpha[index];
+    }
 }
 
 function getConnectionFeeding(node) {
@@ -289,6 +303,13 @@ c.onmousedown = function(evt) {
                     connectionClean(deadConns[x]);
                 }
             }
+            var inpIndex = inputs.indexOf(clickContext);
+            var outIndex = outputs.indexOf(clickContext);
+            if (inpIndex > -1) {
+                inputs.splice(inpIndex, 1)
+            } else if (outIndex > -1) {
+                inputs.splice(outIndex, 1)
+            }
             gates.splice(gates.indexOf(clickContext), 1);
         } else {
             // Ran if the wire placement is not enabled
@@ -340,6 +361,15 @@ c.addEventListener("mousemove", function(evt) {
     }
 }, false);
 
+function voidPropagation(ele) {
+    ele.addEventListener("click", function(e){
+        e.stopPropagation();
+    });
+}
+
+voidPropagation(truthTable);
+voidPropagation(propositionalPopup);
+
 function loadImage(fn) {
     // Load a given circuit part filename into a image object
     var img = new Image;
@@ -384,30 +414,35 @@ function gate(type, display, position, inputs, outputs) {
 function light(x, y) {
     // Used to visually display the output of a circuit
     gate.call(this, "light", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
+    this.binaryOutput = true;
     this.logic = function () { if (this.inputs[0].state) {this.display = "ONLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function redLight(x, y) {
     // Used to visually display the output of a circuit
     gate.call(this, "redLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
+    this.binaryOutput = true;
     this.logic = function () { if (this.inputs[0].state) {this.display = "REDLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function greenLight(x, y) {
     // Used to visually display the output of a circuit
     gate.call(this, "greenLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
+    this.binaryOutput = true;
     this.logic = function () { if (this.inputs[0].state) {this.display = "GREENLIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function blueLight(x, y) {
     // Used to visually display the output of a circuit
     gate.call(this, "blueLight", "OFFLIGHT.png", {x: x, y: y}, [new input(this, {x: -3, y: 17})], []);
+    this.binaryOutput = true;
     this.logic = function () { if (this.inputs[0].state) {this.display = "BLUELIGHT.png"} else {this.display = "OFFLIGHT.png"}};
 }
 
 function toggleSwitch(x, y) {
     // Basic user input for a togglable on and off
     gate.call(this, "switch", "OFFSWITCH.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
+    this.binaryInput = true;
     this.clickevent = function(){ 
         this.outputs[0].state = !this.outputs[0].state;
         if (this.outputs[0].state) {
@@ -422,6 +457,7 @@ function toggleSwitch(x, y) {
 function tempButton(x, y) {
     // User input that stays on while the mouse is pressed and stationary
     gate.call(this, "button", "OFFBUTTON.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
+    this.binaryInput = true;
     this.mousedown = function() {
         // Switch to the on state
         this.outputs[0].state = true;
@@ -441,6 +477,7 @@ function clock(x, y) {
     this.renderCount = 0;
     this.clockcount = 1;
     this.renderLimit = 8;
+    this.binaryInput = true;
     this.logic = function() {
         this.renderCount++
         if (this.renderCount % this.renderLimit == 0) {
@@ -461,6 +498,7 @@ function beeper(x, y) {
     this.audioLooped = false;
     this.buzzerSound = new Audio("Sounds/BUZZER.wav");
     this.buzzerSound.loop = true;
+    this.binaryOutput = true;
     this.logic = function() { 
         if (this.inputs[0].state) {
             if (!this.audioLooped) {
@@ -560,28 +598,6 @@ function display(x, y) {
     };
 }
 
-function getInputNodes() {
-    var inputNodes = [];
-    for (var i = 0; i < gates.length; ++i) {
-        var selectGate = gates[i];
-        if (selectGate.type == "switch" || selectGate.type == "button" || selectGate.type == "clock") {
-            inputNodes.push(selectGate);
-        }
-    }
-    return inputNodes;
-}
-
-function getOutputNodes() {
-    var outputNodes = [];
-    for (var i = 0; i < gates.length; ++i) {
-        var selectGate = gates[i];
-        if (selectGate.type == "beeper" || selectGate.type == "light" || selectGate.type.indexOf("Light") > -1) {
-            outputNodes.push(selectGate);
-        }
-    }
-    return outputNodes;
-}
-
 function createGate(gtype, position = null) {
     // Create an instance of the given type
     let newGate;
@@ -592,6 +608,11 @@ function createGate(gtype, position = null) {
     }
     actionHistory.push(newGate);
     gates.push(newGate);
+    if (newGate.binaryInput) {
+        inputs.push(newGate);
+    } else if (newGate.binaryOutput) {
+        outputs.push(newGate);
+    }
 }
 
 function drawLine(ax, ay, bx, by, color) {
@@ -640,94 +661,156 @@ function padBin(rowConfig, inputCount) {
     return rowConfig;
 }
 
-function ttOpen() {
-    truthTabelEnable = !truthTabelEnable;
-    if (truthTabelEnable) {
-        var inputs = getInputNodes();
-        var outputs = getOutputNodes();
-        if (inputs.length == 0 || outputs.length == 0) {
+function closePopup() {
+    popup.classList.remove("popupShown");
+    tablePopup.classList.remove("tablePopupShown");
+    propositionalPopup.classList.remove("propositionalPopupShown")
+}
+
+function showPopup() {
+    popup.classList.add("popupShown");
+}
+
+function showTruthTable() {
+    if (inputs.length == 0 || outputs.length == 0) {
+        return;
+    }
+    if (inputs.length > 8) {
+        if (!confirm("Generating a truth table with more than 8 inputs may either take a long time or just completely crash, are you sure you want to continue?")) {
             return;
         }
-        if (inputs.length > 8) {
-            if (!confirm("Generating a truth table with more than 8 inputs may either take a long time or just completely crash, are you sure you want to continue?")) {
-                return;
-            }
-        }
-        
-        if (!simulationPaused) {
-            // Pause simulation if its enabled
-            pausePlay();
-        }
-
-        var inputCalcs = [];
-        var outputCalcs = [];
-        var allOnInt = Math.pow(2, inputs.length); // Calculate number of possible input configurations
-        for (var i = 0; i < allOnInt; ++i) {
-            // Convert number to binary array and replace 1 with true and 0 with false
-            var rowConfig = i.toString(2).split("").map((x) => x == "1");
-            rowConfig = padBin(rowConfig, inputs.length); // Add falses to the left to padd out to correct length
-            for (var x = 0; x < rowConfig.length; ++x) {
-                inputs[x].outputs[0].state = rowConfig[x];
-            }
-            inputCalcs.push(rowConfig);
-            simulateLogic(); // Run logic for this input set
-            var thisOuputs = [];
-            for (var x = 0; x < outputs.length; ++x) {
-                thisOuputs.push(outputs[x].inputs[0].state);
-            }
-            outputCalcs.push(thisOuputs);
-        }
-        for (var i = 0; i < inputs.length; ++i) {
-            if (inputs[i].clickevent) {
-                // Reset all input nodes
-                inputs[i].clickevent();
-            }
-        }
-        // Draw table
-        truthTable.innerHTML = ""; // Clear table
-        var topBar = document.createElement("tr");
-        for (var x = 0; x < inputs.length; ++x) {
-            // Create input headers
-            var newCol = document.createElement("th");
-            newCol.appendChild(document.createTextNode(upperAlpha[x]));
-            topBar.appendChild(newCol);
-        }
-        for (var x = 0; x < outputs.length; ++x) {
-            // Create output headers
-            var newCol = document.createElement("th");
-            newCol.appendChild(document.createTextNode("Q" + (x + 1).toString()));
-            topBar.appendChild(newCol);
-        }
-        truthTable.appendChild(topBar);
-        for (var i = 0; i < allOnInt; ++i) {
-            // Create all rows
-            var newRow = document.createElement("tr");
-            for (var x = 0; x < inputCalcs[0].length; ++x) {
-                // Add each on off for inputs
-                var newCol = document.createElement("td");
-                if (inputCalcs[i][x]) {
-                    newCol.appendChild(document.createTextNode("on"));
-                } else {
-                    newCol.appendChild(document.createTextNode("off"));
-                }
-                newRow.appendChild(newCol);
-            }
-            for (var j = 0; j < outputCalcs[i].length; ++j) {
-                // Add each on off for outputs
-                var newCol2 = document.createElement("td");
-                if (outputCalcs[i][j]) {
-                    newCol2.appendChild(document.createTextNode("on"));
-                } else {
-                    newCol2.appendChild(document.createTextNode("off"));
-                }
-                newRow.appendChild(newCol2);
-            }
-            truthTable.appendChild(newRow);
-        }
-        popup.classList.add("popupShown");
-    } else {
-        popup.classList.remove("popupShown");
     }
+    
+    if (!simulationPaused) {
+        // Pause simulation if its enabled
+        pausePlay();
+    }
+
+    var inputCalcs = [];
+    var outputCalcs = [];
+    var allOnInt = Math.pow(2, inputs.length); // Calculate number of possible input configurations
+    for (var i = 0; i < allOnInt; ++i) {
+        // Convert number to binary array and replace 1 with true and 0 with false
+        var rowConfig = i.toString(2).split("").map((x) => x == "1");
+        rowConfig = padBin(rowConfig, inputs.length); // Add falses to the left to padd out to correct length
+        for (var x = 0; x < rowConfig.length; ++x) {
+            inputs[x].outputs[0].state = rowConfig[x];
+        }
+        inputCalcs.push(rowConfig);
+        simulateLogic(); // Run logic for this input set
+        var thisOuputs = [];
+        for (var x = 0; x < outputs.length; ++x) {
+            thisOuputs.push(outputs[x].inputs[0].state);
+        }
+        outputCalcs.push(thisOuputs);
+    }
+    for (var i = 0; i < inputs.length; ++i) {
+        if (inputs[i].clickevent) {
+            // Reset all input nodes
+            inputs[i].clickevent();
+        }
+    }
+    // Draw table
+    truthTable.innerHTML = ""; // Clear table
+    var topBar = document.createElement("tr");
+    for (var x = 0; x < inputs.length; ++x) {
+        // Create input headers
+        var newCol = document.createElement("th");
+        newCol.appendChild(document.createTextNode(inputId(x)));
+        topBar.appendChild(newCol);
+    }
+    for (var x = 0; x < outputs.length; ++x) {
+        // Create output headers
+        var newCol = document.createElement("th");
+        newCol.appendChild(document.createTextNode("Q" + (x + 1).toString()));
+        topBar.appendChild(newCol);
+    }
+    truthTable.appendChild(topBar);
+    for (var i = 0; i < allOnInt; ++i) {
+        // Create all rows
+        var newRow = document.createElement("tr");
+        for (var x = 0; x < inputCalcs[0].length; ++x) {
+            // Add each on off for inputs
+            var newCol = document.createElement("td");
+            if (inputCalcs[i][x]) {
+                newCol.appendChild(document.createTextNode("on"));
+            } else {
+                newCol.appendChild(document.createTextNode("off"));
+            }
+            newRow.appendChild(newCol);
+        }
+        for (var j = 0; j < outputCalcs[i].length; ++j) {
+            // Add each on off for outputs
+            var newCol2 = document.createElement("td");
+            if (outputCalcs[i][j]) {
+                newCol2.appendChild(document.createTextNode("on"));
+            } else {
+                newCol2.appendChild(document.createTextNode("off"));
+            }
+            newRow.appendChild(newCol2);
+        }
+        truthTable.appendChild(newRow);
+    }
+    showPopup();
+    tablePopup.classList.add("tablePopupShown");
+}
+
+function renderStruct(struct) {
+    let structString = "";
+    if (struct.logic) {
+        return inputId(inputs.indexOf(struct));
+    } else {
+        if (outputs.indexOf(struct.from) > -1) {
+            struct.render = struct.render.replace("Q =", "Q" + (outputs.indexOf(struct.from) + 1).toString() + " =");
+        }
+        if (struct.in.length == 2) {
+            structString += struct.render.replace("#", renderStruct(struct.in[0])).replace("@", renderStruct(struct.in[1]));
+        } else {
+            structString += struct.render.replace("#", renderStruct(struct.in[0]));
+        }
+    }
+    return structString;
+}
+
+function buildStruct(node) {
+    if (node.inputs.length == 0) {
+        return node;
+    } else {
+        var ins = [];
+        for (var x = 0; x < node.inputs.length; ++x) {
+            var getFeeding = getConnectionFeeding(node.inputs[x]);
+            if (getFeeding) {
+                ins.push(buildStruct(getFeeding.fromNode.parentNode));
+            }
+        }
+        if (ins.length != node.inputs.length) {
+            throw "Incomplete circuit";
+        }
+        return {from: node, in: ins, render: logicRenders[node.type]};
+    }
+}
+
+function showPropositional() {
+    if (inputs.length == 0 || outputs.length == 0) {
+        propositionalEnable = false;
+        return;
+    }
+    var propositionalPaths = [];
+    for (var i = 0; i < outputs.length; ++i) {
+        try {
+            var startConn = getConnectionFeeding(outputs[i].inputs[0]);
+            if (startConn) {
+                var propositionalStructure = {from: outputs[i], in: [buildStruct(startConn.fromNode.parentNode)], render: logicRenders["equal"]};
+                propositionalPaths.push(propositionalStructure);
+            }
+        }
+        catch (e) {
+            console.log("Aborted invalid circuit");
+        }
+    }
+    propositionalPopup.innerHTML = propositionalPaths.map(renderStruct).join("<br>");
+    showPopup();
+    propositionalPopup.classList.add("propositionalPopupShown");
 }
 
 function labelToggle() {
@@ -760,6 +843,8 @@ function resetBoard() {
     }
     gates = [];
     connections = [];
+    inputs = [];
+    outputs = [];
 }
 
 function clearCanvas() {
@@ -802,7 +887,7 @@ function simulateLogic() {
     }
 
     // Process logic
-    var visitedNodes = getInputNodes();
+    var visitedNodes = [...inputs];
     
     while (visitedNodes.length > 0) {
         var doneNodes = [];
@@ -906,15 +991,13 @@ function drawCanvas() {
     if (labelsEnabled) {
         // Label all input and output elements
         ctx.fillStyle = "black";
-        var inputs = getInputNodes();
-        var outputs = getOutputNodes();
         for (var i = 0; i < inputs.length; ++i) {
             var inputIter = inputs[i];
-            ctx.fillText(upperAlpha[i], inputIter.position.x - 10, inputIter.position.y + 29);
+            ctx.fillText(inputId(i), inputIter.position.x - 14, inputIter.position.y + 29);
         }
         for (var i = 0; i < outputs.length; ++i) {
             var outputIter = outputs[i];
-            ctx.fillText("Q" + (i + 1).toString(), outputIter.position.x + 4, outputIter.position.y + 15);
+            ctx.fillText("Q" + (i + 1).toString(), outputIter.position.x, outputIter.position.y + 15);
         }
     }
 }
@@ -925,7 +1008,7 @@ function renderLoop() {
     ctx.font = "38px Tahoma";
 
     if (!simulationPaused) {
-        simulateLogic()
+        simulateLogic();
     }
     
     clearCanvas(); // Clear the canvas for render
