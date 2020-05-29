@@ -88,7 +88,6 @@ for (var i = 0; i < gateImagesFN.length; ++i) {
 }
 
 function inputId(index) {
-    console.log(index);
     var divisor = Math.floor(index / (upperAlpha.length));
     if (divisor > 0) {
         return (upperAlpha[index - divisor * upperAlpha.length] + divisor.toString());
@@ -803,10 +802,7 @@ function showPropositional() {
                 var propositionalStructure = {from: outputs[i], in: [buildStruct(startConn.fromNode.parentNode)], render: logicRenders["equal"]};
                 propositionalPaths.push(propositionalStructure);
             }
-        }
-        catch (e) {
-            console.log("Aborted invalid circuit");
-        }
+        } catch (e) {}
     }
     propositionalPopup.innerHTML = propositionalPaths.map(renderStruct).join("<br>");
     showPopup();
