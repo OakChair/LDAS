@@ -474,12 +474,11 @@ function tempButton(x, y) {
     this.logic = function(){return true;}; // Placeholder to prevent error
 }
 
-function clock(x, y) {
-    // Runs every 64 frames
+function clock(x, y, renderLimit) {
     gate.call(this, "clock", "CLOCKP1.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
     this.renderCount = 0;
     this.clockcount = 1;
-    this.renderLimit = 8;
+    this.renderLimit = renderLimit;
     this.binaryInput = true;
     this.logic = function() {
         this.renderCount++
@@ -493,6 +492,22 @@ function clock(x, y) {
         }
         this.display = "CLOCKP" + this.clockcount.toString() + ".png";
     }
+}
+
+function clock1(x, y) {
+    clock.call(this, x, y, 16);
+}
+
+function clock2(x, y) {
+    clock.call(this, x, y, 8);
+}
+
+function clock3(x, y) {
+    clock.call(this, x, y, 4);
+}
+
+function clock4(x, y) {
+    clock.call(this, x, y, 2);
 }
 
 function beeper(x, y) {
