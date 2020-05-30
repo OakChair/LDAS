@@ -9,8 +9,7 @@
          - First JavaScript project
          - Origionally tried making in Windows Form app but support for advanced rendering was minimal and slow
          - Fully functional and tested in Firefox 76.0.1, Brave 1.8.96, Chrome 81.0.4044.138 and Edge 44.18362.449.0
-         - Partially functional in Internet Explorer 11.778.18362.0 due to CSS Grid not being fully supported in the standard way
-         - Assumed not to be functional in Internet Explorer 9 due to a lack of support for modern technologies
+         - Internet explorer not supported due to outdated technologies
 */
 
 // Canvas stuff
@@ -67,6 +66,7 @@ var outputs = [];
 var connections = [];
 var actionHistory = [];
 var logicRenders = {"andGate": "(# ∧ @)", "orGate": "(# ∨ @)", "xorGate": "(# ⊕ @)", "notGate": "¬(#)", "nandGate": "¬(# ∧ @)", "norGate": "¬(# ∨ @)", "equal": "Q = #"};
+// # represent the first input and @ the second if applicable
 
 // Initialising HTML stuff
 uploadImage.ondragstart = function() { return false; };
@@ -79,6 +79,7 @@ function buttonUnPress() {
     customUploader.classList.remove("buttonDown");
 }
 
+// Simulate actual button look
 customUploader.addEventListener("mouseup", buttonUnPress);
 customUploader.addEventListener("mouseleave", buttonUnPress);
 
@@ -88,6 +89,7 @@ for (var i = 0; i < gateImagesFN.length; ++i) {
 }
 
 function inputId(index) {
+    // Create unquie label for an input node based on its creation order
     var divisor = Math.floor(index / (upperAlpha.length));
     if (divisor > 0) {
         return (upperAlpha[index - divisor * upperAlpha.length] + divisor.toString());
@@ -119,7 +121,7 @@ function getFeedingConnections(node) {
 }
 
 for (var i = 1; i < 6; ++i) {
-    var getCat = document.getElementById("cat" + i.toString());
+    var getCat = fromId("cat" + i.toString());
     let thisCat = i;
     getCat.addEventListener("click", function(){
         catClick(thisCat);
@@ -128,7 +130,7 @@ for (var i = 1; i < 6; ++i) {
 }
 
 for (var i = 1; i < 6; ++i) {
-    var getTs = document.getElementById("ts" + i.toString());
+    var getTs = fromId("ts" + i.toString());
     toolsets.push(getTs);
 }
 
@@ -238,6 +240,7 @@ function getClickContext(mousePos) {
 }
 
 function connectionClean(conn) {
+    // Cleanly delete a connection
     conn.toNode.state = false;
     connections.splice(connections.indexOf(conn), 1);
 }
@@ -361,6 +364,7 @@ c.addEventListener("mousemove", function(evt) {
 }, false);
 
 function voidPropagation(ele) {
+    // Stop click events on elements behind the given element
     ele.addEventListener("click", function(e){
         e.stopPropagation();
     });
@@ -661,6 +665,7 @@ function padBin(rowConfig, inputCount) {
 }
 
 function closePopup() {
+    // Close all popups
     popup.classList.remove("popupShown");
     tablePopup.classList.remove("tablePopupShown");
     propositionalPopup.classList.remove("propositionalPopupShown")
@@ -755,13 +760,17 @@ function showTruthTable() {
 }
 
 function renderStruct(struct) {
+    // Turn logic structure into text
     let structString = "";
     if (struct.logic) {
+        // End of structure
         return inputId(inputs.indexOf(struct));
     } else {
         if (outputs.indexOf(struct.from) > -1) {
+            // Label the output
             struct.render = struct.render.replace("Q =", "Q" + (outputs.indexOf(struct.from) + 1).toString() + " =");
         }
+        // Create the string
         if (struct.in.length == 2) {
             structString += struct.render.replace("#", renderStruct(struct.in[0])).replace("@", renderStruct(struct.in[1]));
         } else {
@@ -772,6 +781,7 @@ function renderStruct(struct) {
 }
 
 function buildStruct(node) {
+    // Recursively create structure representing logic gates from outputs
     if (node.inputs.length == 0) {
         return node;
     } else {
@@ -783,6 +793,7 @@ function buildStruct(node) {
             }
         }
         if (ins.length != node.inputs.length) {
+            // Throw error to stop struct building
             throw "Incomplete circuit";
         }
         return {from: node, in: ins, render: logicRenders[node.type]};
@@ -791,12 +802,14 @@ function buildStruct(node) {
 
 function showPropositional() {
     if (inputs.length == 0 || outputs.length == 0) {
+        // Only show if valid circuits are possible
         propositionalEnable = false;
         return;
     }
     var propositionalPaths = [];
     for (var i = 0; i < outputs.length; ++i) {
         try {
+            // Will throw if circuit is invalid
             var startConn = getConnectionFeeding(outputs[i].inputs[0]);
             if (startConn) {
                 var propositionalStructure = {from: outputs[i], in: [buildStruct(startConn.fromNode.parentNode)], render: logicRenders["equal"]};
