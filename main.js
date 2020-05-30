@@ -474,8 +474,8 @@ function tempButton(x, y) {
     this.logic = function(){return true;}; // Placeholder to prevent error
 }
 
-function clock(x, y, renderLimit) {
-    gate.call(this, "clock", "CLOCKP1.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
+function clock(x, y, clockName, renderLimit = 8) {
+    gate.call(this, clockName, "CLOCKP1.png", {x: x, y: y}, [], [new output(this, {x: 91, y: 17})]);
     this.renderCount = 0;
     this.clockcount = 1;
     this.renderLimit = renderLimit;
@@ -495,19 +495,19 @@ function clock(x, y, renderLimit) {
 }
 
 function clock1(x, y) {
-    clock.call(this, x, y, 16);
+    clock.call(this, x, y, "clock1", 16);
 }
 
 function clock2(x, y) {
-    clock.call(this, x, y, 8);
+    clock.call(this, x, y, "clock2", 8);
 }
 
 function clock3(x, y) {
-    clock.call(this, x, y, 4);
+    clock.call(this, x, y, "clock3", 4);
 }
 
 function clock4(x, y) {
-    clock.call(this, x, y, 2);
+    clock.call(this, x, y, "clock4", 2);
 }
 
 function beeper(x, y) {
@@ -638,6 +638,7 @@ function createGate(gtype, position = null) {
     actionHistory.push(newGate);
     gates.push(newGate);
     if (newGate.binaryInput) {
+        // Created an input
         inputs.push(newGate);
     } else if (newGate.binaryOutput) {
         outputs.push(newGate);
