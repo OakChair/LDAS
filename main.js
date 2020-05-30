@@ -44,7 +44,7 @@ var imgy = 44; //
 var interval = 10; // Set FPS timer
 var gateImagesFN = ["ANDGATE.png", "ORGATE.png", "NOTGATE.png", "NANDGATE.png", "NORGATE.png", "XORGATE.png", "ONSWITCH.png", "OFFSWITCH.png", "ONBUTTON.png", "OFFBUTTON.png", "OFFLIGHT.png", "ONLIGHT.png", "NODEHIGHLIGHT.png", "DISPLAY.png", "CLOCKP1.png", "CLOCKP2.png", "CLOCKP3.png", "CLOCKP4.png", "CLOCKP5.png", "CLOCKP6.png", "CLOCKP7.png", "CLOCKP8.png", "BUZZER.png", "REDLIGHT.png", "GREENLIGHT.png", "BLUELIGHT.png"];
 var gateImages = {};
-var modeIndent = 130;
+var modeIndent = 130; // Define the position of the mode indicator
 var modeHeight = 25;
 var labelsEnabled = false;
 var upperAlpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -305,14 +305,7 @@ c.onmousedown = function(evt) {
                     connectionClean(deadConns[x]);
                 }
             }
-            var inpIndex = inputs.indexOf(clickContext);
-            var outIndex = outputs.indexOf(clickContext);
-            if (inpIndex > -1) {
-                inputs.splice(inpIndex, 1)
-            } else if (outIndex > -1) {
-                outputs.splice(outIndex, 1)
-            }
-            gates.splice(gates.indexOf(clickContext), 1);
+            cleanlyDelete(clickContext);
         } else {
             // Ran if the wire placement is not enabled
             mouseWithoutMove = true;
@@ -599,6 +592,17 @@ function display(x, y) {
         }
         this.displayOutput = binaryCount.toString(16).toUpperCase();
     };
+}
+
+function cleanlyDelete(gate) {
+    var inpIndex = inputs.indexOf(gate);
+    var outIndex = outputs.indexOf(gate);
+    if (inpIndex > -1) {
+        inputs.splice(inpIndex, 1)
+    } else if (outIndex > -1) {
+        outputs.splice(outIndex, 1)
+    }
+    gates.splice(gates.indexOf(gate), 1);
 }
 
 function createGate(gtype, position = null) {
@@ -1103,7 +1107,7 @@ function undoCreation() {
             if (latestModification.onDelete) {
                 latestModification.onDelete();
             }
-            gates.splice(gates.indexOf(latestModification), 1);
+            cleanlyDelete(latestModification);
         }
     }
     actionHistory.splice(actionHistory.length -1, 1); // Remove from the creation history
