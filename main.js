@@ -33,6 +33,7 @@ var truthTable = fromId("truthTable");
 var tablePopup = fromId("tablePopup");
 var labelButton = fromId("labelButton");
 var propositionalPopup = fromId("propositionalPopup");
+var stepButton = fromId("stepButton");
 
 // Render stuff
 var cats = [];
@@ -165,9 +166,14 @@ function pausePlay() {
     if (simulationPaused) {
         pausePlayBtn.classList.add("playBtn");
         pausePlayBtn.classList.remove("pauseBtn");
+
+        stepButton.classList.remove("stepOff");
+        stepButton.classList.add("stepOn");
     } else {
         pausePlayBtn.classList.add("pauseBtn");
         pausePlayBtn.classList.remove("playBtn");
+        stepButton.classList.add("stepOff");
+        stepButton.classList.remove("stepOn");
     }
 }
 
@@ -762,6 +768,7 @@ function showTruthTable() {
     }
     showPopup();
     tablePopup.classList.add("tablePopupShown");
+    pausePlay();
 }
 
 function renderStruct(struct) {
@@ -912,7 +919,7 @@ function simulateLogic() {
             if (!selectNode.selfInputsProcessed) {
                 checkSelfConnections(selectNode);
             }
-            if (selectNode.inputsProcessed >= selectNode.inputs.length) {
+            //if (selectNode.inputsProcessed >= selectNode.inputs.length || selectNode.inputsProcessed > selectNode.minimumRequiredInputs) {
                 if (selectNode.type != "switch") {
                 }
                 // Ran if all of the inputs for the node has been processed
@@ -942,7 +949,7 @@ function simulateLogic() {
                         conn.toNode.parentNode.inputsProcessed += 1; // Increment the process counter for the inputs
                     }
                 }
-            }
+            //}
         }
         for (var i = 0; i < doneNodes.length; ++i) {
             // Remove all proccessed nodes from the to process list

@@ -299,3 +299,11 @@ tr:nth-child(even) {
     padding: 8px;
     overflow-y: scroll;
 }
+
+.stepOff {
+    background-image: url(UIParts/STEPOFF.png);
+}
+
+.stepOn {
+    background-image: url(UIParts/STEP.png);
+}
