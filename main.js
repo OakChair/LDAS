@@ -60,6 +60,7 @@ var mouseWithoutMove = true; // Tracks wether the user has moved their mouse sin
 // Simulation stuff
 var simulationPaused = false; // General circuit pause
 var deleteEnable = false;
+var renderStep = false;
 var gates = [];
 var inputs = [];
 var outputs = [];
@@ -912,9 +913,11 @@ function simulateLogic() {
                 checkSelfConnections(selectNode);
             }
             if (selectNode.inputsProcessed >= selectNode.inputs.length) {
+                if (selectNode.type != "switch") {
+                }
                 // Ran if all of the inputs for the node has been processed
                 passIncremented = true;
-                doneNodes.push(i); // Used to remove the node from the need to process node list
+                doneNodes.push(selectNode); // Used to remove the node from the need to process node list
                 selectNode.logic();
                 for (var x = 0; x < selectNode.outputs.length; ++x) {
                     var selectOutput = selectNode.outputs[x];
@@ -943,7 +946,7 @@ function simulateLogic() {
         }
         for (var i = 0; i < doneNodes.length; ++i) {
             // Remove all proccessed nodes from the to process list
-            visitedNodes.splice(doneNodes[i], 1);
+            visitedNodes.splice(visitedNodes.indexOf(doneNodes[i]), 1);
         }
         if (!passIncremented) {
             // Break if the pass resulted in no calculations meaning that all viable connections have been proccessed
@@ -1015,12 +1018,17 @@ function drawCanvas() {
     }
 }
 
+function stepRender() {
+    renderStep = true;
+}
+
 function renderLoop() {
     scaleCanvas();
     ctx.lineWidth = 3;
     ctx.font = "38px Tahoma";
 
-    if (!simulationPaused) {
+    if (!simulationPaused || renderStep) {
+        renderStep = false;
         simulateLogic();
     }
     
