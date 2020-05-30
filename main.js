@@ -307,7 +307,7 @@ c.onmousedown = function(evt) {
             if (inpIndex > -1) {
                 inputs.splice(inpIndex, 1)
             } else if (outIndex > -1) {
-                inputs.splice(outIndex, 1)
+                outputs.splice(outIndex, 1)
             }
             gates.splice(gates.indexOf(clickContext), 1);
         } else {
